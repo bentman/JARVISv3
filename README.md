@@ -1,5 +1,9 @@
 # JARVISv3: Personal AI Assistant
 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](#)
+[![Status](https://img.shields.io/badge/status-Active%20Development-success)](#)
+
 JARVISv3 is a local-first AI assistant designed for daily workflows on your machines. It's built on a **Workflow Graph** architecture, which means instead of just chatting, it coordinates specialized agents to handle things like search, deep research, code creation, code review, and memory retrieval — all while running on your own hardware.
 
 ## 🔍 Reality Check: What works?
@@ -44,14 +48,11 @@ Run natively for best performance and NPU access:
 
 ## 🛠️ Daily Workflows
 
-### 1. Offline Research
-Ask "Jarvis, summarize my notes on project X" or use `/research [topic]` to pull from both local history and the web.
-
-### 2. Code Review
-Use the specialized coding agents to audit local files for security issues or refactoring opportunities without sending your code to the cloud.
-
-### 3. Voice-First Interaction
-Run `python scripts/voice_loop.py` on your laptop to have an always-on assistant while you work, supporting barge-in and local wake word detection.
+*   **Search**: Grab results from the web without the tracking.
+*   **Deep Research**: Dig deep into a topic and get a clean summary.
+*   **Code Creation**: Spin up logic locally—your code stays on your drive.
+*   **Code Review**: Catch bugs and style issues before you commit.
+*   **Memory Retrieval**: "What was that idea I had last Tuesday?"
 
 ---
 
@@ -68,6 +69,16 @@ python scripts/validate_production.py
 - **Zero Cloud by Default**: Your conversations stay on your disk.
 - **Redaction**: PII is automatically scrubbed before any optional cloud escalation.
 - **Audit Logs**: See exactly what data was processed and where.
+
+---
+
+## 🤝 Contributions Welcome!
+Whether it's adding new workflow templates, improving hardware detection, or refining the UI, contributions are welcome. See our **[Agent Guidelines](AGENTS.md)** for standards.
+
+---
+
+## 📜 License
+Distributed under the **MIT License**. See **[LICENSE](LICENSE)** for more information.
 
 ---
 
