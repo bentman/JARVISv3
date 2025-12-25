@@ -48,6 +48,8 @@ To ensure reliability and maintainability, JARVISv3 adheres to the following ind
 | **[REQ-CORE-005]** | **Semantic Memory** | **Ready-to-Use** | FAISS vector store, semantic search, tagging, and export/import utilities. |
 | **[REQ-CORE-006]** | **Search Aggregation** | **Ready-to-Use** | Multi-provider (Bing, Google, DDG), Redis caching, and privacy redaction. |
 | **[REQ-CORE-007]** | **Budget Governance** | **Implemented** | Real-time token tracking, predictive budgeting, escalation controls. |
+| **[REQ-CORE-008]** | **Conversation Mgmt** | **Implemented** | API endpoints for listing, retrieving, and deleting conversation history. |
+| **[REQ-CORE-009]** | **Desktop Wrapper**   | **Implemented** | Tauri configuration and build scripts for native desktop deployment. |
 
 #### Detailed Requirement Definitions
 
@@ -203,11 +205,12 @@ Automatic profiling of:
 ### API Specifications
 
 #### Core Assistant API
-- **Chat Management**: `/api/v1/chat/send`, `/api/v1/chat/history`
-- **Hardware Status**: `/api/v1/hardware/status`, `/api/v1/hardware/models`
-- **Memory Operations**: `/api/v1/memory/search`, `/api/v1/memory/export`
+- **Chat Management**: `/api/v1/chat`, `/api/v1/chat/stream`
+- **Conversation Mgmt**: `/api/v1/conversations`, `/api/v1/conversation/{id}` (GET/DELETE)
+- **Hardware Status**: `/api/v1/hardware/status` (Telemetry & Capabilities)
+- **Memory Operations**: `/api/v1/memory/search`, `/api/v1/context/build`
 - **Privacy Controls**: `/api/v1/privacy/classify`, `/api/v1/privacy/redact`
-- **Budget Monitoring**: `/api/v1/budget/status`, `/api/v1/budget/limits`
+- **Budget Monitoring**: `/api/v1/budget/status`
 
 #### Workflow API
 - **Workflow Definition**: `/api/v1/workflow/define`, `/api/v1/workflow/list`
@@ -602,8 +605,14 @@ JARVISv3 leverages the production-proven service logic of JARVISv2, refactored i
 
 ## Current Capabilities & Core Validation
 
-### 🎉 **Core Foundation Validated & Extended (26/26 Tests Passed)**
-JARVISv3 has achieved full feature parity with v2 while maintaining the "Unified Golden Stack" architecture. The framework has been verified with 100% pass rate in the extended parity suite.
+### Unified Validation Pillar (23 Backend Tests + Frontend Suite)
+The system uses a unified validation script (`scripts/validate_production.py`) that integrates core logic, feature parity, and frontend integration into a single report-generating process.
+
+**Validation Scope:**
+- **Backend Core**: 16 logic tests (Security, Budget, Privacy, Workflow Engine).
+- **Feature Parity**: 7 integration tests (Voice Session, Search Logic, Memory RAG, Hardware API, Conversation API).
+- **Frontend**: Full Vitest suite for React components.
+- **AI Intelligence**: E2E smoke test for local model inference.
 
 - **System Infrastructure**: Database initialization, Auth, and Observability (metrics/tracing).
 - **Workflow Engine**: DAG execution with dependency management and declarative (YAML) workflow support.

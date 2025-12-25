@@ -19,6 +19,17 @@ JARVISv3 is a sophisticated AI assistant framework that transforms linear prompt
 *   **Unified Search Aggregator**: Privacy-aware search across local memory and multiple web providers (DuckDuckGo, Bing, Google, Tavily) with Redis caching.
 *   **Semantic Memory & Tagging**: FAISS-powered long-term memory with conversation tagging and data portability (Export/Import).
 *   **Headless Voice Loop**: Standalone Python client for always-on, low-latency voice interaction with barge-in support and local fallbacks.
+*   **Desktop Wrapper**: Cross-platform desktop integration via **Tauri**, providing system-native capabilities and shortcuts.
+
+---
+
+## ✅ Unified Validation
+
+JARVISv3 includes a comprehensive validation pillar (`scripts/validate_production.py`) that ensures system integrity across four critical domains:
+1.  **Backend Core**: Schema validation, security protocols, and workflow engine logic.
+2.  **Feature Parity**: Verification of Voice, Search, and Memory services.
+3.  **Frontend UX**: Component-level testing via Vitest.
+4.  **AI Intelligence**: End-to-end model inference smoke tests.
 
 ---
 

@@ -22,6 +22,7 @@ Welcome to JARVISv3, your advanced AI assistant with sophisticated workflow arch
 After following the [deployment guide](./deployment/) for your platform, JARVISv3 will be accessible at:
 
 - **Web Interface**: `http://localhost:3000`
+- **Desktop App**: Via the Tauri wrapper (run `npm run tauri dev` in `frontend/`)
 - **API Documentation**: `http://localhost:8000/api/docs`
 
 ### First-Time Configuration
