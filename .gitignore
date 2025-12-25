@@ -215,6 +215,9 @@ JARVISv2_ref/
 
 # --- Added by JARVISv3 Setup ---
 
+# Tauri
+frontend/src-tauri/target/
+
 # Database
 *.db
 *.sqlite3

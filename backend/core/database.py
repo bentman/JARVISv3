@@ -548,6 +548,39 @@ class DatabaseManager:
             self.logger.error(f"Error creating conversation: {e}")
             return ""
 
+    async def get_conversations(self) -> List[Dict[str, Any]]:
+        """Get all conversations"""
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            async with db.execute("SELECT * FROM conversations ORDER BY updated_at DESC") as cursor:
+                rows = await cursor.fetchall()
+                return [dict(row) for row in rows]
+
+    async def get_conversation(self, conversation_id: str) -> Optional[Dict[str, Any]]:
+        """Get a specific conversation by ID"""
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            async with db.execute(
+                "SELECT * FROM conversations WHERE conversation_id = ?",
+                (conversation_id,)
+            ) as cursor:
+                row = await cursor.fetchone()
+                return dict(row) if row else None
+
+    async def delete_conversation(self, conversation_id: str) -> bool:
+        """Delete a conversation and all its messages"""
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                # Delete messages first (foreign key constraint)
+                await db.execute("DELETE FROM messages WHERE conversation_id = ?", (conversation_id,))
+                # Delete conversation
+                await db.execute("DELETE FROM conversations WHERE conversation_id = ?", (conversation_id,))
+                await db.commit()
+                return True
+        except Exception as e:
+            self.logger.error(f"Error deleting conversation {conversation_id}: {e}")
+            return False
+
     async def add_message(self, conversation_id: str, role: str, content: str, tokens: int = 0, mode: str = "chat") -> str:
         """Add a message to a conversation"""
         import uuid

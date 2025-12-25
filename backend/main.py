@@ -15,7 +15,7 @@ Follows the architecture decisions outlined in Project.md:
 import asyncio
 import logging
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from fastapi import FastAPI, HTTPException, Depends, Request, File, UploadFile, Response
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -118,6 +118,27 @@ class WorkflowDefinition(BaseModel):
     edges: list
 
 
+class MessageSchema(BaseModel):
+    """Schema for a single message"""
+    message_id: str
+    conversation_id: str
+    role: str
+    content: str
+    timestamp: datetime
+    tokens: int = 0
+    mode: str = "chat"
+
+
+class ConversationSchema(BaseModel):
+    """Schema for a conversation"""
+    conversation_id: str
+    title: str
+    created_at: datetime
+    updated_at: datetime
+    tags: List[str] = []
+    messages: Optional[List[MessageSchema]] = None
+
+
 # Initialize default workflows
 async def initialize_workflows():
     """Initialize default workflows for the system"""
@@ -203,6 +224,34 @@ async def get_budget_status(user_id: str = "admin_123"): # Default for now
 async def list_agents():
     """List all registered specialized agents"""
     return agent_registry.list_agents()
+
+@app.get("/api/v1/conversations", response_model=List[ConversationSchema])
+async def list_conversations():
+    """List all conversations"""
+    from .core.memory import memory_service
+    return await memory_service.get_conversations()
+
+@app.get("/api/v1/conversation/{conversation_id}", response_model=ConversationSchema)
+async def get_conversation(conversation_id: str):
+    """Get a specific conversation with messages"""
+    from .core.memory import memory_service
+    conv = await memory_service.get_conversation(conversation_id)
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    # Get messages
+    messages = await memory_service.get_messages(conversation_id)
+    conv['messages'] = messages
+    return conv
+
+@app.delete("/api/v1/conversation/{conversation_id}")
+async def delete_conversation(conversation_id: str):
+    """Delete a conversation and its messages"""
+    from .core.memory import memory_service
+    success = await memory_service.delete_conversation(conversation_id)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to delete conversation")
+    return {"status": "success", "conversation_id": conversation_id}
 
 @app.post("/api/v1/distributed/register")
 async def register_remote_node(node: RemoteNode):

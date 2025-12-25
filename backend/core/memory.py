@@ -36,6 +36,21 @@ class MemoryService:
         await self.db.initialize()
         return await self.db.create_conversation(title, conversation_id)
 
+    async def get_conversations(self) -> List[Dict[str, Any]]:
+        """Get all conversations"""
+        await self.db.initialize()
+        return await self.db.get_conversations()
+
+    async def get_conversation(self, conversation_id: str) -> Optional[Dict[str, Any]]:
+        """Get a specific conversation by ID"""
+        await self.db.initialize()
+        return await self.db.get_conversation(conversation_id)
+
+    async def delete_conversation(self, conversation_id: str) -> bool:
+        """Delete a conversation and all its messages"""
+        await self.db.initialize()
+        return await self.db.delete_conversation(conversation_id)
+
     async def add_message(self, conversation_id: str, role: str, content: str,
                    tokens: int = 0, mode: str = "chat") -> str:
         """Add a message to a conversation and index it"""
