@@ -54,7 +54,7 @@ A personal AI assistant that runs on my hardware (Desktop + Laptop), handles my 
 - **Privacy**: Local-first isn't a feature; it's the architecture. PII is redacted before anything hits a web-search provider.
 
 ## Verification Pillar
-All core logic is verified daily via `scripts/validate_production.py`.
-- **Backend**: 23+ tests covering all service logic and parity.
+System functionality is verified periodically via `scripts/validate_production.py`.
+- **Backend**: 23+ tests covering core logic and feature parity.
 - **Frontend**: Vitest suites for UI components.
 - **Intelligence**: E2E smoke tests for real model inference.

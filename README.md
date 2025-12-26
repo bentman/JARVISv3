@@ -57,11 +57,11 @@ Run natively for best performance and NPU access:
 ---
 
 ## ✅ System Validation
-We verify the entire system logic daily. To run the full suite and generate a report:
+Run the system validation suite periodically to check core functionality:
 ```bash
 python scripts/validate_production.py
 ```
-*Checks Backend Core, Feature Parity, Frontend UI, and AI Inference.*
+*Checks Backend Core logic, Feature Parity, and Frontend build.*
 
 ---
 
