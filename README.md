@@ -35,7 +35,7 @@ Run natively for best performance and NPU access:
     python -m venv .venv
     source .venv/bin/activate  # Windows: .venv\Scripts\activate
     pip install -r requirements.txt
-    python main.py
+    ./.venv/Scripts/python main.py
     ```
 2.  **Frontend**:
     ```bash
@@ -59,7 +59,7 @@ Run natively for best performance and NPU access:
 ## ✅ System Validation
 Run the system validation suite periodically to check core functionality:
 ```bash
-python scripts/validate_production.py
+./backend/.venv/Scripts/python scripts/validate_production.py
 ```
 *Checks Backend Core logic, Feature Parity, and Frontend build.*
 

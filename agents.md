@@ -76,17 +76,18 @@ Agents must use the following commands for validation and execution:
 
 | Action | Command |
 | :--- | :--- |
-| **System Validation** | `python scripts/validate_production.py` |
-| **Run Unit Tests** | `python -m pytest backend/tests/` |
-| **Linting (Python)** | `flake8 backend/` |
-| **Formatting (Python)**| `black backend/` |
-| **Start Backend** | `python backend/main.py` |
+| **System Validation** | `./backend/.venv/Scripts/python scripts/validate_production.py` |
+| **Run Unit Tests** | `./backend/.venv/Scripts/python -m pytest backend/tests/` |
+| **Linting (Python)** | `./backend/.venv/Scripts/flake8 backend/` |
+| **Formatting (Python)**| `./backend/.venv/Scripts/black backend/` |
+| **Start Backend** | `./backend/.venv/Scripts/python backend/main.py` |
 | **Start Frontend** | `cd frontend && npm run dev` |
 
 ### 4.2 Environment Isolation (Critical)
 **Always** use the project virtual environment. Never install packages globally.
 -   **Activate**: `backend/.venv` (Windows: `Scripts/Activate.ps1`, Unix: `bin/activate`).
--   **Execution**: Prefix Python commands with the venv path (e.g., `./backend/.venv/bin/python`).
+-   **Execution**: Prefix Python commands with the venv path (e.g., `./backend/.venv/Scripts/python` on Windows or `./backend/.venv/bin/python` on Unix). 
+-   **Note**: All commands in this document use Windows paths by default for compatibility with the primary development environment.
 
 ### 4.2 Documentation & Script Integrity (No Sprawl)
 -   **Documents**: Avoid creating new markdown files. Update `Project.md`, `README.md`, or `agents.md` instead.
@@ -111,7 +112,7 @@ A feature is only `ready-to-use` if it satisfies the **Unified Validation Pillar
 5.  **Security**: Input validation is enforced; no hardcoded secrets or insecure crypto.
 6.  **Documentation**: `Project.md` roadmap is updated; code is self-documenting.
 
-**Note**: All pillars are verified simultaneously by running `python scripts/validate_production.py`.
+**Note**: All pillars are verified simultaneously by running `./backend/.venv/Scripts/python scripts/validate_production.py`.
 
 ---
 
