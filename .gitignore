@@ -205,6 +205,10 @@ cython_debug/
 #  Cline is an AI-powered code editor. 
 .clinerules/
 
+# roocode
+.roomodes
+.roo/
+
 # Marimo
 marimo/_static/
 marimo/_lsp/
