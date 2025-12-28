@@ -55,6 +55,27 @@ A personal AI assistant that runs on my hardware (Desktop + Laptop), handles my 
 
 ## Verification Pillar
 System functionality is verified periodically via `scripts/validate_production.py`.
-- **Backend**: 23+ tests covering core logic and feature parity.
+- **Backend**: 23+ tests covering core logic and feature parity. (Maintenance: Ongoing - Deprecations removed in Sprint 1).
 - **Frontend**: Vitest suites for UI components.
 - **Intelligence**: E2E smoke tests for real model inference.
+
+## 4-Phase Evolution Plan (2025-2026)
+
+### Phase 1: Validation & Codebase Hygiene (COMPLETED)
+- [x] Modernize dependencies (ddgs update).
+- [x] Eliminate deprecation warnings (datetime.now(UTC), model_dump()).
+- [x] Fix async/await issues in testing suite.
+- [x] Standardize modern Python standards in AGENTS.md.
+
+### Phase 2: Operationalizing Cyclic State Machines (COMPLETED)
+- [x] Upgrade WorkflowEngine to support conditional cyclic edges.
+- [x] Implement Reflector nodes for self-correction.
+- [x] Refactor Code Assistant to use cyclic Write-Test-Fix loop.
+
+### Phase 3: Dynamic Supervisor Routing (COMPLETED)
+- [x] Implement Supervisor Agent for dynamic plan generation.
+- [x] Enable runtime DAG construction based on user intent (Plan Queue).
+
+### Phase 4: Deep Memory & Active Learning (COMPLETED)
+- [x] Implement Active Memory nodes for mid-task learning.
+- [x] Add Context Pinning for long-term project persistence.

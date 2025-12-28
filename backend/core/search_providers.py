@@ -3,7 +3,7 @@ import logging
 import httpx
 from typing import List, Dict, Optional, Any
 from abc import ABC, abstractmethod
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 
 logger = logging.getLogger(__name__)
 

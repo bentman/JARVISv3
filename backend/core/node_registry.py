@@ -6,7 +6,7 @@ import asyncio
 import logging
 import uuid
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 from ..ai.context.schemas import RemoteNode, NodeCapability
 from .hardware import HardwareService
 
@@ -66,7 +66,7 @@ class NodeRegistry:
     async def get_active_nodes(self) -> List[RemoteNode]:
         """Return list of online nodes that have sent a heartbeat recently"""
         active = []
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         async with self._lock:
             for node in self.nodes.values():
                 # Node is active if online and heartbeat < 5 mins old

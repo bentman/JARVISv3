@@ -6,7 +6,7 @@ import httpx
 from enum import Enum
 from typing import Dict, Any, Optional, Callable, List, AsyncIterable
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, UTC
 import logging
 from ..context.schemas import TaskContext, NodeContext, SystemContext, WorkflowContext, TaskType, UserIntent, ContextBudget
 
@@ -34,6 +34,9 @@ class NodeType(str, Enum):
     TOOL_CALL = "tool_call"
     HUMAN_APPROVAL = "human_approval"
     SEARCH_WEB = "search_web"
+    REFLECTOR = "reflector"
+    SUPERVISOR = "supervisor"
+    ACTIVE_MEMORY = "active_memory"
     END = "end"
 
 
@@ -61,9 +64,12 @@ class WorkflowState(BaseModel):
     completed_nodes: List[str] = Field(default=[])
     failed_nodes: List[str] = Field(default=[])
     execution_history: List[Dict[str, Any]] = Field(default=[])
-    start_time: datetime = Field(default_factory=datetime.utcnow)
+    start_time: datetime = Field(default_factory=lambda: datetime.now(UTC))
     end_time: Optional[datetime] = None
     error_message: Optional[str] = None
+    iteration_count: int = 0
+    max_iterations: int = 50  # Circuit breaker for cyclic loops
+    plan_queue: List[Dict[str, Any]] = Field(default_factory=list)  # For dynamic planning
 
 
 class WorkflowEngine:
@@ -125,7 +131,7 @@ class WorkflowEngine:
                         "node_id": node_id,
                         "status": NodeStatus.COMPLETED,
                         "result": result,
-                        "timestamp": datetime.utcnow().isoformat()
+                        "timestamp": datetime.now(UTC).isoformat()
                     })
                     self.state.completed_nodes.append(node_id)
                     workflow_tracer.trace_node_end(self.state.workflow_id, node_id, result, success=True)
@@ -162,7 +168,7 @@ class WorkflowEngine:
             return
 
         checkpoint_data = {
-            "checkpoint_id": f"cp_{self.state.workflow_id}_{node_id}_{datetime.utcnow().timestamp()}",
+            "checkpoint_id": f"cp_{self.state.workflow_id}_{node_id}_{datetime.now(UTC).timestamp()}",
             "workflow_id": self.state.workflow_id,
             "node_id": node_id,
             "state_data": self.state.model_dump(mode='json'),
@@ -190,6 +196,12 @@ class WorkflowEngine:
             return await self._execute_human_approval_node(node)
         elif node.type == NodeType.SEARCH_WEB:
             return await self._execute_search_web_node(node)
+        elif node.type == NodeType.REFLECTOR:
+            return await self._execute_reflector_node(node)
+        elif node.type == NodeType.SUPERVISOR:
+            return await self._execute_supervisor_node(node)
+        elif node.type == NodeType.ACTIVE_MEMORY:
+            return await self._execute_active_memory_node(node)
         else:
             raise ValueError(f"Unknown node type: {node.type}")
     
@@ -269,7 +281,7 @@ class WorkflowEngine:
         self.context = initial_context
         self.state = WorkflowState(
             workflow_id=initial_context.workflow_context.workflow_id,
-            start_time=datetime.utcnow()
+            start_time=datetime.now(UTC)
         )
         
         try:
@@ -311,7 +323,7 @@ class WorkflowEngine:
             
             # Final result
             self.state.status = NodeStatus.COMPLETED
-            self.state.end_time = datetime.utcnow()
+            self.state.end_time = datetime.now(UTC)
             yield {"type": "workflow_completed", "workflow_id": self.state.workflow_id, "final_response": full_response}
             
         except Exception as e:
@@ -363,7 +375,7 @@ class WorkflowEngine:
         # This would wait for human approval
         return {
             "approved": True,  # In simulation, assume approved
-            "approval_time": datetime.utcnow().isoformat(),
+            "approval_time": datetime.now(UTC).isoformat(),
             "approver_id": "system"
         }
 
@@ -373,6 +385,59 @@ class WorkflowEngine:
         if self.context:
             return await search_node.execute(self.context, self.node_results)
         return {"success": False, "error": "No context available"}
+
+    async def _execute_reflector_node(self, node: WorkflowNode) -> Dict[str, Any]:
+        """Execute a reflector node"""
+        from .reflector import reflector_node
+        
+        target_node_id = str(node.conditions.get("target_node_id", "")) if node.conditions else ""
+        criteria = str(node.conditions.get("criteria", "")) if node.conditions else ""
+        
+        if not target_node_id:
+             return {"next_node": None, "error": "No target_node_id specified"}
+
+        if self.context:
+            return await reflector_node.execute(self.context, self.node_results, target_node_id, criteria)
+            
+        return {"next_node": None, "error": "No context available"}
+
+    async def _execute_supervisor_node(self, node: WorkflowNode) -> Dict[str, Any]:
+        """Execute a supervisor node"""
+        from .supervisor import supervisor_node
+        
+        if self.context:
+            # Execute supervisor logic
+            result = await supervisor_node.execute(self.context)
+            
+            # Update plan queue in state
+            if self.state and "plan" in result:
+                self.state.plan_queue.extend(result["plan"])
+                logger.info(f"Supervisor updated plan queue with {len(result['plan'])} steps")
+                
+                # If plan has items, return the first one as next_node to kickstart
+                if self.state.plan_queue:
+                    next_step = self.state.plan_queue.pop(0)
+                    if isinstance(next_step, str):
+                        return {"next_node": next_step}
+                    elif isinstance(next_step, dict):
+                        return {"next_node": next_step.get("node_id")}
+            
+            return result
+            
+        return {"error": "No context available"}
+
+    async def _execute_active_memory_node(self, node: WorkflowNode) -> Dict[str, Any]:
+        """Execute an active memory node"""
+        from .active_memory import active_memory_node
+        
+        operation = str(node.conditions.get("operation", "")) if node.conditions else ""
+        content = node.conditions.get("content") if node.conditions else None
+        query = str(node.conditions.get("query", "")) if node.conditions else ""
+        
+        if self.context:
+            return await active_memory_node.execute(self.context, operation, content, query)
+            
+        return {"error": "No context available"}
 
     async def _execute_remote_node(self, node_id: str, remote_node_id: str) -> Dict[str, Any]:
         """Proxy node execution to a remote JARVISv3 instance"""
@@ -421,7 +486,7 @@ class WorkflowEngine:
                 "node_id": node_id,
                 "status": NodeStatus.FAILED,
                 "error": error_msg,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(UTC).isoformat()
             })
     
     async def execute_workflow(self, initial_context: TaskContext) -> Dict[str, Any]:
@@ -436,7 +501,7 @@ class WorkflowEngine:
         self.context = initial_context
         self.state = WorkflowState(
             workflow_id=initial_context.workflow_context.workflow_id,
-            start_time=datetime.utcnow()
+            start_time=datetime.now(UTC)
         )
         
         try:
@@ -447,9 +512,19 @@ class WorkflowEngine:
             if not start_nodes:
                 raise ValueError("No starting nodes found in workflow")
             
-            # Execute the workflow graph
-            for node_id in start_nodes:
-                await self._execute_node_recursive(node_id)
+            # Smart Start: Prioritize Supervisor for dynamic workflows
+            supervisor_nodes = [nid for nid in start_nodes if self.nodes[nid].type == NodeType.SUPERVISOR]
+            
+            if supervisor_nodes:
+                # If a Supervisor exists, it drives the process as a State Machine
+                await self._execute_cyclic_state_machine(supervisor_nodes[0])
+            elif len(start_nodes) == 1:
+                # Single entry point, safe to use State Machine
+                await self._execute_cyclic_state_machine(start_nodes[0])
+            else:
+                # Fallback to legacy recursive DAG execution for multi-start graphs
+                for node_id in start_nodes:
+                    await self._execute_node_recursive(node_id)
             
             # Complete workflow
             final_res = {
@@ -460,7 +535,7 @@ class WorkflowEngine:
             }
             if self.state:
                 self.state.status = NodeStatus.COMPLETED
-                self.state.end_time = datetime.utcnow()
+                self.state.end_time = datetime.now(UTC)
                 final_res["execution_time"] = (self.state.end_time - self.state.start_time).total_seconds()
                 workflow_tracer.end_trace(self.state.workflow_id, self.state, final_res)
             
@@ -473,7 +548,7 @@ class WorkflowEngine:
             if self.state:
                 self.state.status = NodeStatus.FAILED
                 self.state.error_message = error_msg
-                self.state.end_time = datetime.utcnow()
+                self.state.end_time = datetime.now(UTC)
             
             return {
                 "status": "failed",
@@ -483,7 +558,7 @@ class WorkflowEngine:
             }
     
     async def _execute_node_recursive(self, node_id: str):
-        """Recursively execute nodes based on dependencies"""
+        """Recursively execute nodes based on dependencies (Legacy DAG mode)"""
         if node_id not in self.nodes:
             raise ValueError(f"Node {node_id} not found in workflow")
         
@@ -499,6 +574,65 @@ class WorkflowEngine:
         # Execute next nodes
         for next_node_id in next_nodes:
             await self._execute_node_recursive(next_node_id)
+
+    async def _execute_cyclic_state_machine(self, start_node_id: str):
+        """Execute workflow as a Cyclic State Machine"""
+        if not self.state:
+            raise ValueError("Workflow state not initialized")
+            
+        current_node_id = start_node_id
+        
+        while current_node_id:
+            # Check circuit breaker
+            if self.state.iteration_count >= self.state.max_iterations:
+                raise Exception(f"Workflow exceeded maximum iterations ({self.state.max_iterations}). Possible infinite loop.")
+            
+            self.state.iteration_count += 1
+            
+            # Execute the node
+            result = await self.execute_node(current_node_id)
+            
+            # Determine next node
+            
+            # 1. Dynamic 'next_node' from result (Router pattern)
+            next_via_router = None
+            if isinstance(result, dict) and "next_node" in result:
+                next_via_router = result["next_node"]
+                if next_via_router and next_via_router.lower() == "end":
+                    next_via_router = None # Stop or fallback
+                elif next_via_router and next_via_router not in self.nodes:
+                     raise ValueError(f"Router sent to unknown node: {next_via_router}")
+            
+            if next_via_router:
+                current_node_id = next_via_router
+                continue
+
+            # 2. Static dependency (DAG pattern)
+            # Find nodes that depend on the CURRENT node
+            next_static_nodes = [nid for nid, n in self.nodes.items() 
+                         if current_node_id in n.dependencies]
+            
+            if next_static_nodes:
+                if len(next_static_nodes) > 1:
+                    logger.warning(f"Ambiguous path from {current_node_id}: {next_static_nodes}. Taking {next_static_nodes[0]}.")
+                current_node_id = next_static_nodes[0]
+                continue
+
+            # 3. Plan Queue (Dynamic pattern) - Only if no other path
+            logger.info(f"Checking plan queue {id(self.state.plan_queue)}. Size: {len(self.state.plan_queue)}. Content: {self.state.plan_queue}")
+            if self.state.plan_queue:
+                next_step = self.state.plan_queue.pop(0)
+                logger.info(f"Popped from plan queue: {next_step}")
+                if isinstance(next_step, str) and next_step in self.nodes:
+                    current_node_id = next_step
+                    continue
+                elif isinstance(next_step, dict) and "node_id" in next_step:
+                     if next_step["node_id"] in self.nodes:
+                         current_node_id = next_step["node_id"]
+                         continue
+            
+            # If we get here, no next node found
+            current_node_id = None
     
 
 

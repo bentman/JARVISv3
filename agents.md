@@ -41,6 +41,9 @@ To maintain high-fidelity implementation, assistants must adhere to:
     -   Class Names: `PascalCase` (e.g., `WorkflowEngine`).
     -   Function/Variable Names: `snake_case`.
     -   Typing: Mandatory type hints for all function signatures and complex variables.
+    -   **Modernization**:
+        -   Use `datetime.now(UTC)` instead of `datetime.utcnow()` (Deprecated).
+        -   Use Pydantic `v2.model_dump()` instead of `v1.dict()` (Deprecated).
     -   Linting: Use `black` and `flake8` (refer to `.flake8` and `pyproject.toml`).
 -   **TypeScript/React (Frontend)**:
     -   Component Names: `PascalCase` (e.g., `HardwareIndicator.tsx`).

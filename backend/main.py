@@ -14,7 +14,7 @@ Follows the architecture decisions outlined in Project.md:
 """
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, Any, Optional, List
 from fastapi import FastAPI, HTTPException, Depends, Request, File, UploadFile, Response
 from fastapi.responses import StreamingResponse
@@ -192,7 +192,7 @@ async def health_check():
 
     return {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "version": "0.1.0",
         "modules": {
             "workflow_engine": "loaded",
@@ -264,7 +264,7 @@ async def node_heartbeat(node_id: str, load: float):
     """Update heartbeat and load for a registered node"""
     async with node_registry._lock:
         if node_id in node_registry.nodes:
-            node_registry.nodes[node_id].last_heartbeat = datetime.utcnow()
+            node_registry.nodes[node_id].last_heartbeat = datetime.now(UTC)
             node_registry.nodes[node_id].current_load = load
             return {"status": "ok"}
     raise HTTPException(status_code=404, detail="Node not registered")
@@ -291,7 +291,7 @@ async def execute_remote_task(context: TaskContext, node_id: str):
 async def chat_endpoint(request: ChatRequest):
     """Main chat endpoint that uses the workflow architecture"""
     try:
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
         
         # Validate input for security issues
         validation_result = await security_validator.validate_input(request.query)
@@ -319,8 +319,8 @@ async def chat_endpoint(request: ChatRequest):
             # Build context for dev workflow
             task_context = await context_builder.build_task_context(
                 user_id=request.user_id,
-                session_id=request.session_id or f"session_{datetime.utcnow().timestamp()}",
-                workflow_id=f"dev_{datetime.utcnow().timestamp()}",
+                session_id=request.session_id or f"session_{datetime.now(UTC).timestamp()}",
+                workflow_id=f"dev_{datetime.now(UTC).timestamp()}",
                 workflow_name="dev",
                 initiating_query=request.query,
                 task_type=TaskType.CODING
@@ -346,11 +346,11 @@ async def chat_endpoint(request: ChatRequest):
             )
         
         # Calculate execution time
-        execution_time = (datetime.utcnow() - start_time).total_seconds()
+        execution_time = (datetime.now(UTC) - start_time).total_seconds()
         
         # Log the workflow execution
         log_data = {
-            'log_id': f"log_{request.user_id}_{datetime.utcnow().timestamp()}",
+            'log_id': f"log_{request.user_id}_{datetime.now(UTC).timestamp()}",
             'workflow_id': result["workflow_id"],
             'log_level': 'info',
             'message': f"Chat completed for user {request.user_id}",
@@ -455,8 +455,8 @@ async def build_context(request: ChatRequest):
             
         task_context = await context_builder.build_task_context(
             user_id=request.user_id,
-            session_id=request.session_id or f"session_{datetime.utcnow().timestamp()}",
-            workflow_id=f"context_build_{datetime.utcnow().timestamp()}",
+            session_id=request.session_id or f"session_{datetime.now(UTC).timestamp()}",
+            workflow_id=f"context_build_{datetime.now(UTC).timestamp()}",
             workflow_name=request.workflow_type,
             initiating_query=request.query,
             task_type=TaskType.CHAT,
@@ -468,7 +468,7 @@ async def build_context(request: ChatRequest):
         return {
             "context_built": True,
             "context_size": await context_builder.get_context_size(task_context),
-            "validation_result": validation_result.dict(),
+            "validation_result": validation_result.model_dump(),
             "context_summary": {
                 "user_id": task_context.system_context.user_id,
                 "workflow_id": task_context.workflow_context.workflow_id,

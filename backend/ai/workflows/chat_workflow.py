@@ -4,7 +4,7 @@ Implements the complete chat workflow using the "Agentic Graph" architecture
 """
 import asyncio
 import os
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, Any, Optional, AsyncIterable
 from pydantic import BaseModel
 import logging
@@ -27,7 +27,7 @@ class ChatWorkflowState(BaseModel):
     context_used: Optional[Dict[str, Any]] = None
     tokens_used: int = 0
     workflow_completed: bool = False
-    timestamp: datetime = datetime.utcnow()
+    timestamp: datetime = datetime.now(UTC)
 
 
 class ChatWorkflow:
@@ -117,7 +117,7 @@ class ChatWorkflow:
         
         additional_context = {
             "conversation_history": history,
-            "current_time": datetime.utcnow().isoformat(),
+            "current_time": datetime.now(UTC).isoformat(),
             "user_preferences": context.system_context.user_preferences.model_dump()
         }
         
@@ -283,7 +283,7 @@ class ChatWorkflow:
             "workflow_id": context.workflow_context.workflow_id,
             "tokens_used": llm_result.get("tokens_used", 0),
             "validation_passed": is_valid,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "workflow_info": {
                 "budget_consumed": context.workflow_context.context_budget.consumed_tokens,
                 "budget_remaining": context.workflow_context.context_budget.remaining_tokens,
@@ -297,13 +297,13 @@ class ChatWorkflow:
         """Execute the complete chat workflow"""
         logger.info(f"Starting chat workflow for user {user_id} with query: {query}")
         
-        session_id = conversation_id or f"session_{datetime.utcnow().timestamp()}"
+        session_id = conversation_id or f"session_{datetime.now(UTC).timestamp()}"
 
         # Build the initial context
         task_context = await self.context_builder.build_task_context(
             user_id=user_id,
             session_id=session_id,
-            workflow_id=f"chat_{datetime.utcnow().timestamp()}",
+            workflow_id=f"chat_{datetime.now(UTC).timestamp()}",
             workflow_name="chat_workflow",
             initiating_query=query,
             task_type=TaskType.CHAT
@@ -353,8 +353,8 @@ class ChatWorkflow:
         # Build initial context
         task_context = await self.context_builder.build_task_context(
             user_id=user_id,
-            session_id=f"session_{datetime.utcnow().timestamp()}",
-            workflow_id=f"chat_{datetime.utcnow().timestamp()}",
+            session_id=f"session_{datetime.now(UTC).timestamp()}",
+            workflow_id=f"chat_{datetime.now(UTC).timestamp()}",
             workflow_name="chat_workflow",
             initiating_query=query,
             task_type=TaskType.CHAT

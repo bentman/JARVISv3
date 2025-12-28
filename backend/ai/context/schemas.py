@@ -4,7 +4,7 @@ that flow through the agentic graph system.
 """
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import Enum
 
 
@@ -54,7 +54,7 @@ class RemoteNode(BaseModel):
     status: str = "online" # online, offline, busy
     capabilities: NodeCapability
     current_load: float = 0.0
-    last_heartbeat: datetime = Field(default_factory=datetime.utcnow)
+    last_heartbeat: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class HardwareState(BaseModel):
@@ -89,7 +89,7 @@ class SystemContext(BaseModel):
     hardware_state: HardwareState
     budget_state: BudgetState
     user_preferences: UserPreferences
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     
     class Config:
         json_encoders = {
@@ -169,7 +169,7 @@ class ToolContext(BaseModel):
         self.tool_outputs.append({
             "tool_name": tool_name,
             "output": output,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         })
 
 
@@ -214,7 +214,7 @@ class TaskContext(BaseModel):
     def get_context_size(self) -> int:
         """Calculate approximate context size in bytes"""
         import json
-        return len(json.dumps(self.dict(), default=str).encode('utf-8'))
+        return len(json.dumps(self.model_dump(), default=str).encode('utf-8'))
     
     def validate_context(self) -> List[str]:
         """Validate the entire context packet"""

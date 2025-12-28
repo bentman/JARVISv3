@@ -4,7 +4,7 @@ Implements logging, metrics, and tracing for the agentic system
 """
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, Any, Optional, Callable, Awaitable
 from functools import wraps
 import asyncio
@@ -22,7 +22,7 @@ class MetricsCollector(BaseModel):
     total_tokens_used: int = 0
     total_execution_time: float = 0.0
     average_execution_time: float = 0.0
-    start_time: datetime = datetime.utcnow()
+    start_time: datetime = datetime.now(UTC)
     
     def increment_requests(self, success: bool = True, tokens_used: int = 0, execution_time: float = 0.0):
         """Increment request counters"""
@@ -83,7 +83,7 @@ class WorkflowTracer:
         """Start tracing a workflow"""
         self.traces[workflow_id] = {
             "workflow_id": workflow_id,
-            "start_time": datetime.utcnow(),
+            "start_time": datetime.now(UTC),
             "context_summary": {
                 "user_id": context.system_context.user_id,
                 "workflow_name": context.workflow_context.workflow_name,
@@ -99,7 +99,7 @@ class WorkflowTracer:
         if workflow_id in self.traces:
             self.traces[workflow_id]["nodes"][node_id] = {
                 "node_id": node_id,
-                "start_time": datetime.utcnow(),
+                "start_time": datetime.now(UTC),
                 "input_data": input_data,
                 "status": "running"
             }
@@ -110,7 +110,7 @@ class WorkflowTracer:
         if workflow_id in self.traces:
             if node_id in self.traces[workflow_id]["nodes"]:
                 node_trace = self.traces[workflow_id]["nodes"][node_id]
-                node_trace["end_time"] = datetime.utcnow()
+                node_trace["end_time"] = datetime.now(UTC)
                 node_trace["output_data"] = output_data
                 node_trace["success"] = success
                 node_trace["duration"] = (node_trace["end_time"] - node_trace["start_time"]).total_seconds()
@@ -122,7 +122,7 @@ class WorkflowTracer:
         """End tracing a workflow"""
         if workflow_id in self.traces:
             trace = self.traces[workflow_id]
-            trace["end_time"] = datetime.utcnow()
+            trace["end_time"] = datetime.now(UTC)
             trace["duration"] = (trace["end_time"] - trace["start_time"]).total_seconds()
             trace["final_result"] = final_result
             trace["status"] = state.status.value
@@ -227,7 +227,7 @@ class SystemHealthMonitor:
     
     def get_system_metrics(self) -> Dict[str, Any]:
         """Get system metrics"""
-        uptime = (datetime.utcnow() - self.metrics_collector.start_time).total_seconds()
+        uptime = (datetime.now(UTC) - self.metrics_collector.start_time).total_seconds()
         
         return {
             "uptime_seconds": uptime,
@@ -238,7 +238,7 @@ class SystemHealthMonitor:
             "total_tokens_used": self.metrics_collector.total_tokens_used,
             "total_execution_time": self.metrics_collector.total_execution_time,
             "average_execution_time": self.metrics_collector.average_execution_time,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         }
 
 

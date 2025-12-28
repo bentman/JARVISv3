@@ -56,12 +56,24 @@ class DevWorkflow:
             conditions={"agent_id": "security_auditor"}
         ))
         
-        # 5. Final Validation Node
+        # 5. Validator Node (Check Security + Implementation)
         self.engine.add_node(WorkflowNode(
-            id="final_validator",
+            id="validator",
             type=NodeType.VALIDATOR,
-            description="Final quality check of the entire process",
+            description="Validates code functionality and security findings",
             dependencies=["security_audit"]
+        ))
+        
+        # 6. Reflector Node (Cyclic Logic)
+        self.engine.add_node(WorkflowNode(
+            id="reflector",
+            type=NodeType.REFLECTOR,
+            description="Checks validation and triggers self-correction loop",
+            dependencies=["validator"],
+            conditions={
+                "target_node_id": "implement_code", 
+                "criteria": "Code must pass security audit and linting"
+            }
         ))
         
     async def execute(self, context: TaskContext) -> dict:

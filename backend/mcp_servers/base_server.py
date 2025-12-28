@@ -9,7 +9,7 @@ import sys
 import json
 from typing import Dict, Any, List, Optional
 import requests
-from datetime import datetime
+from datetime import datetime, UTC
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ class MCPDispatcher:
         Perform a web search using DuckDuckGo
         """
         try:
-            from duckduckgo_search import DDGS
+            from ddgs import DDGS
             ddgs = DDGS()
             results = ddgs.text(query, max_results=max_results)
 
@@ -139,7 +139,7 @@ class MCPDispatcher:
                     "title": result.get("title", ""),
                     "url": result.get("href", ""),
                     "snippet": result.get("body", ""),
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(UTC).isoformat()
                 })
 
             return {
@@ -231,7 +231,7 @@ class MCPDispatcher:
                 "memory_available_gb": round(psutil.virtual_memory().available / (1024**3), 2),
                 "disk_total_gb": round(psutil.disk_usage('/').total / (1024**3), 2),
                 "disk_available_gb": round(psutil.disk_usage('/').free / (1024**3), 2),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(UTC).isoformat()
             }
 
             return {
@@ -270,7 +270,7 @@ class MCPDispatcher:
                 "created_at": datetime.fromtimestamp(file_stats.st_ctime).isoformat(),
                 "modified_at": datetime.fromtimestamp(file_stats.st_mtime).isoformat(),
                 "sha256_hash": file_hash,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(UTC).isoformat()
             }
 
             return {

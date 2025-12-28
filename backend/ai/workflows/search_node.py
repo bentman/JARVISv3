@@ -15,7 +15,7 @@ from ...core.search_providers import (
     GoogleProvider, 
     TavilyProvider
 )
-from datetime import datetime
+from datetime import datetime, UTC
 
 logger = logging.getLogger(__name__)
 
@@ -80,13 +80,13 @@ class SearchNode:
             search_results["privacy_assessment"] = {
                 "classification": str(privacy_assessment),
                 "should_process_locally": privacy_service.should_process_locally(query, context.system_context.user_preferences.privacy_level),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(UTC).isoformat()
             }
 
             # 2. Local Memory Search (Semantic)
-            memory_start_time = datetime.utcnow()
+            memory_start_time = datetime.now(UTC)
             memory_hits = await memory_service.semantic_search(query, k=3)
-            memory_end_time = datetime.utcnow()
+            memory_end_time = datetime.now(UTC)
 
             search_results["local_memory"] = [
                 {
@@ -101,11 +101,11 @@ class SearchNode:
 
             # 3. Web Search - only if privacy allows
             web_results = []
-            web_start_time = datetime.utcnow()
+            web_start_time = datetime.now(UTC)
             web_end_time = web_start_time
             
             if not search_results["privacy_assessment"]["should_process_locally"] and settings.SEARCH_ENABLED:
-                web_start_time = datetime.utcnow()
+                web_start_time = datetime.now(UTC)
                 
                 # Redact query for privacy
                 safe_query = privacy_service.redact_sensitive_data(query)
@@ -121,7 +121,7 @@ class SearchNode:
                                     "title": r.get("title"),
                                     "href": r.get("url"),
                                     "body": r.get("snippet"),
-                                    "timestamp": datetime.utcnow().isoformat(),
+                                    "timestamp": datetime.now(UTC).isoformat(),
                                     "source": r.get("source", "web")
                                 })
                             # If we found results, we can stop or continue based on policy. 
@@ -131,7 +131,7 @@ class SearchNode:
                         logger.error(f"Search provider {name} failed: {e}")
                         continue
                         
-                web_end_time = datetime.utcnow()
+                web_end_time = datetime.now(UTC)
 
             search_results["web"] = web_results
 
@@ -142,7 +142,7 @@ class SearchNode:
                 "memory_retrieval_time_ms": (memory_end_time - memory_start_time).total_seconds() * 1000,
                 "web_retrieval_time_ms": (web_end_time - web_start_time).total_seconds() * 1000 if web_results else 0,
                 "total_results": len(search_results["local_memory"]) + len(web_results),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(UTC).isoformat()
             }
 
             search_results["success"] = True

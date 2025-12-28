@@ -5,7 +5,7 @@ Implements a workflow that includes web search.
 import asyncio
 import logging
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 
 from ..context.schemas import TaskContext, TaskType
 from .engine import WorkflowEngine, WorkflowNode, NodeType
@@ -70,8 +70,8 @@ class ResearchWorkflow:
         # Build initial task context
         task_context = await self.context_builder.build_task_context(
             user_id=user_id,
-            session_id=f"session_{datetime.utcnow().timestamp()}",
-            workflow_id=f"research_{datetime.utcnow().timestamp()}",
+            session_id=f"session_{datetime.now(UTC).timestamp()}",
+            workflow_id=f"research_{datetime.now(UTC).timestamp()}",
             workflow_name="research_workflow",
             initiating_query=query,
             task_type=TaskType.RESEARCH

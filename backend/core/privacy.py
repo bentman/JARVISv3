@@ -12,7 +12,7 @@ except ImportError:
     class StrEnum(str, Enum):
         pass
 from pydantic import BaseModel
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 import hashlib
 
 logger = logging.getLogger(__name__)
@@ -133,7 +133,7 @@ class PrivacyService:
         classification = self.classify_data(content)
         retention_period = self.data_retention_policies.get(classification, timedelta(days=365))
 
-        return datetime.utcnow() - creation_date <= retention_period
+        return datetime.now(UTC) - creation_date <= retention_period
 
     def create_privacy_audit_log(self, action: str, data_type: str,
                                user_id: str, timestamp: datetime = None) -> Dict[str, Any]:
@@ -141,7 +141,7 @@ class PrivacyService:
         Create a privacy audit log entry for compliance tracking
         """
         if not timestamp:
-            timestamp = datetime.utcnow()
+            timestamp = datetime.now(UTC)
 
         return {
             "timestamp": timestamp.isoformat(),

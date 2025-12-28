@@ -2,7 +2,7 @@
 Ports JARVISv2 semantic search and conversation persistence.
 """
 from typing import List, Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, UTC
 import logging
 import hashlib
 import json
@@ -68,7 +68,7 @@ class MemoryService:
                     "role": role,
                     "mode": mode,
                     "content": content,
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(UTC).isoformat()
                 }
 
                 # Index the text directly - VectorStore handles embedding internally

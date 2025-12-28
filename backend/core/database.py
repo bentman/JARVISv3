@@ -5,7 +5,7 @@ Implements persistence for production deployment
 import os
 import asyncio
 import json
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, Any, List, Optional, Union
 from pathlib import Path
 import logging
@@ -398,7 +398,7 @@ class DatabaseManager:
                         budget_data.get('monthly_spent_usd', 0.0),
                         budget_data.get('daily_spent_usd', 0.0),
                         budget_data.get('tokens_consumed', 0),
-                        budget_data.get('period_start_date', datetime.utcnow().date().isoformat())
+                        budget_data.get('period_start_date', datetime.now(UTC).date().isoformat())
                     )
                 )
                 await db.commit()
@@ -725,7 +725,7 @@ class DatabaseManager:
         """Export all data from the database"""
         export = {
             "version": "v3",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "users": [],
             "conversations": [],
             "messages": [],

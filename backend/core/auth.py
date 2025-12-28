@@ -6,7 +6,7 @@ import os
 import jwt
 from jwt import InvalidTokenError, ExpiredSignatureError
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Optional, Dict, Any, List
 from fastapi import HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -29,7 +29,7 @@ class User:
         self.email = email
         self.role = role
         self.permissions = permissions if permissions is not None else []
-        self.created_at = datetime.utcnow()
+        self.created_at = datetime.now(UTC)
         self.last_login = None
         self.is_active = True
         self.api_keys = []
@@ -75,14 +75,14 @@ class AuthManager:
     def create_access_token(self, user_id: str, expires_delta: Optional[timedelta] = None) -> str:
         """Create JWT access token for user"""
         if expires_delta:
-            expire = datetime.utcnow() + expires_delta
+            expire = datetime.now(UTC) + expires_delta
         else:
-            expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+            expire = datetime.now(UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         
         to_encode = {
             "sub": user_id,
             "exp": expire,
-            "iat": datetime.utcnow(),
+            "iat": datetime.now(UTC),
             "type": "access"
         }
         
@@ -91,12 +91,12 @@ class AuthManager:
     
     def create_refresh_token(self, user_id: str) -> str:
         """Create JWT refresh token for user"""
-        expire = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        expire = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         
         to_encode = {
             "sub": user_id,
             "exp": expire,
-            "iat": datetime.utcnow(),
+            "iat": datetime.now(UTC),
             "type": "refresh"
         }
         
@@ -140,7 +140,7 @@ class AuthManager:
         
         # Verify password against stored hash
         if user.password_hash and self._verify_password(password, user.password_hash):
-            user.last_login = datetime.utcnow()
+            user.last_login = datetime.now(UTC)
             # Update the user in the database
             for uid, u in users_db.items():
                 if u.user_id == user.user_id:

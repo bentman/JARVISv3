@@ -5,7 +5,7 @@ Optimized for low-end hardware with aggressive memory management.
 import asyncio
 import logging
 from typing import Dict, Any, Optional, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 import json
 import zlib
 import os
@@ -114,7 +114,7 @@ class ContextLifecycleManager:
             'workflow_id': context.workflow_context.workflow_id,
             'initiating_query': context.workflow_context.initiating_query[:50] + "...",
             'artifacts': len(context.workflow_context.accumulated_artifacts),
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(UTC).isoformat()
         }
         return json.dumps(summary)
     
@@ -137,7 +137,7 @@ class ContextLifecycleManager:
     async def checkpoint_context(self, context: TaskContext, checkpoint_id: str) -> Optional[str]:
         """Save context checkpoint with compression"""
         try:
-            context_data = context.dict()
+            context_data = context.model_dump()
             json_data = json.dumps(context_data, default=str).encode('utf-8')
             
             if self.compression_enabled:
@@ -169,7 +169,7 @@ class ContextArchiver:
     
     async def archive_context(self, context: TaskContext, retention: str = 'medium_term') -> str:
         """Archive context for long-term storage"""
-        archive_id = f"archive_{context.workflow_context.workflow_id}_{datetime.utcnow().timestamp()}"
+        archive_id = f"archive_{context.workflow_context.workflow_id}_{datetime.now(UTC).timestamp()}"
         self.logger.info(f"Context archived: {archive_id} with retention {retention}")
         return archive_id
 
