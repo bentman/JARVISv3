@@ -59,7 +59,7 @@ Run natively for best performance and NPU access:
 ## ✅ System Validation
 Run the system validation suite periodically to check core functionality:
 ```bash
-./backend/.venv/Scripts/python scripts/validate_production.py
+./backend/.venv/Scripts/python validation/validate_backend.py
 ```
 *Checks Backend Core logic, Feature Parity, and Frontend build.*
 

@@ -79,7 +79,7 @@ Agents must use the following commands for validation and execution:
 
 | Action | Command |
 | :--- | :--- |
-| **System Validation** | `./backend/.venv/Scripts/python scripts/validate_production.py` |
+| **System Validation** | `./backend/.venv/Scripts/python validation/validate_backend.py` |
 | **Run Unit Tests** | `./backend/.venv/Scripts/python -m pytest backend/tests/` |
 | **Linting (Python)** | `./backend/.venv/Scripts/flake8 backend/` |
 | **Formatting (Python)**| `./backend/.venv/Scripts/black backend/` |
@@ -94,7 +94,7 @@ Agents must use the following commands for validation and execution:
 
 ### 4.2 Documentation & Script Integrity (No Sprawl)
 -   **Documents**: Avoid creating new markdown files. Update `Project.md`, `README.md`, or `agents.md` instead.
--   **Scripts**: Do not create ad-hoc verification scripts (e.g., `verify_stage.py`). Integrate all system checks into `scripts/validate_production.py` to maintain a single source of truth for system health.
+-   **Scripts**: Do not create ad-hoc verification scripts (e.g., `verify_stage.py`). Integrate all system checks into `validation/validate_backend.py` to maintain a single source of truth for system health.
 
 ### 4.3 Common Implementation Tasks
 -   **Adding a Workflow Node**:
@@ -115,7 +115,7 @@ A feature is only `ready-to-use` if it satisfies the **Unified Validation Pillar
 5.  **Security**: Input validation is enforced; no hardcoded secrets or insecure crypto.
 6.  **Documentation**: `Project.md` roadmap is updated; code is self-documenting.
 
-**Note**: All pillars are verified simultaneously by running `./backend/.venv/Scripts/python scripts/validate_production.py`.
+**Note**: All pillars are verified simultaneously by running `./backend/.venv/Scripts/python validation/validate_backend.py`.
 
 ---
 
