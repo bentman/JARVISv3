@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platforms](https://img.shields.io/badge/platform-Windows_|_macOS_|_Linux-lightgrey)](#)
-[![Status](https://img.shields.io/badge/status-Active_Development-green)](#)
+[![Status](https://img.shields.io/badge/status-Active_Development-yellow)](#)
 
 JARVISv3 is a local-first AI assistant designed for daily workflows on your machines. It's built on a **Workflow Graph** architecture, which means instead of just chatting, it coordinates specialized agents to handle things like search, deep research, code creation, code review, and memory retrieval — all while running on your own hardware.
 
@@ -10,12 +10,12 @@ JARVISv3 is a local-first AI assistant designed for daily workflows on your mach
 
 | Feature | Status | Notes |
 | :--- | :--- | :--- |
-| **Basic Chat** | ✅ Works | Local inference via Ollama/llama.cpp is stable. |
-| **Voice Interaction**| ✅ Works | Wake word and STT/TTS are functional and reliable. |
-| **Memory** | ✅ Works | Semantic search across past conversations (FAISS). |
-| **Web Research** | ✅ Works | Aggregated search with privacy redaction. |
-| **Multi-Machine** | ⚠️ Needs Work | Runs on Win/Mac/Linux, but cross-device sync is manual. |
-| **Daily Utility** | ⚠️ Needs Work | Needs better system integration (tray, global hotkeys). |
+| **Basic Chat** | ⚠️ Implemented | Requires external LLM provider (Ollama/llama.cpp). |
+| **Voice Interaction**| ⚠️ Implemented | Wake word and STT/TTS are implemented but require external voice models. |
+| **Memory** | ✅ Exercised | Semantic search across past conversations (FAISS) - locally functional. |
+| **Web Research** | ⚠️ Implemented | Aggregated search with privacy redaction. Requires external search APIs. |
+| **Multi-Machine** | ⚠️ Implemented | Runs on Win/Mac/Linux with distributed node support. |
+| **Daily Utility** | ⚠️ Implemented | System integration available but requires configuration. |
 
 ---
 

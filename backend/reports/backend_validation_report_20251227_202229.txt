@@ -1,0 +1,41 @@
+JARVISv3 Backend Validation Session started at 2025-12-27T20:22:29.855971
+Report File: reports\backend_validation_report_20251227_202229.txt
+============================================================
+WARNING: Virtual environment not found at: backend\.venv\Scripts\python.exe
+Some tests may fail if dependencies are not installed globally.
+Recommended: Create venv with 'python -m venv backend/.venv'
+
+============================================================
+BACKEND INTEGRATION TESTS
+============================================================
+
+============================================================
+BACKEND INTEGRATION TESTS
+============================================================
+ERROR: Virtual environment not found: backend\.venv\Scripts\python.exe
+Please create the virtual environment first using: python -m venv backend/.venv
+ERROR: Skipping Backend Integration Tests - Virtual environment not available
+
+============================================================
+WORKFLOW ENGINE FAILURES TEST
+============================================================
+ERROR: Virtual environment not found: backend\.venv\Scripts\python.exe
+Please create the virtual environment first using: python -m venv backend/.venv
+ERROR: Skipping Workflow Engine Failures test - Virtual environment not available
+
+============================================================
+AI INTELLIGENCE VALIDATION (E2E)
+============================================================
+ERROR: Virtual environment not found: backend\.venv\Scripts\python.exe
+Please create the virtual environment first using: python -m venv backend/.venv
+ERROR: Skipping AI Intelligence test - Virtual environment not available
+
+============================================================
+BACKEND VALIDATION SUMMARY
+============================================================
+Backend Tests:     FAIL
+Workflow Failures: FAIL
+AI Intelligence:   FAIL
+============================================================
+
+!!! Validation failed - see specific component failures above

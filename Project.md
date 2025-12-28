@@ -13,39 +13,39 @@ A personal AI assistant that runs on my hardware (Desktop + Laptop), handles my 
 
 | Capability | Status | Description |
 | :--- | :--- | :--- |
-| **Voice Interface** | Ready | Wake word (Jarvis), STT, and TTS. Works while I'm away from the keyboard. |
-| **Code Assistant** | Working | Specialized node for code review and refactoring. |
-| **Research Node** | Working | Aggregated search (DDG/Bing) with local memory context. |
-| **Context Memory** | Ready | Remembers what we talked about via local FAISS store. |
-| **Hardware Routing**| Ready | Detects GPU (NVIDIA/AMD/Intel) or CPU-only and picks the right model. |
-| **Conversation API**| Ready | Full history management via API. |
-| **Desktop Wrapper** | Working | Tauri-based window with system shortcuts. |
+| **Voice Interface** | Implemented | Wake word (Jarvis), STT, and TTS. Requires external voice models. |
+| **Code Assistant** | Implemented | Specialized node for code review and refactoring. Requires external LLM. |
+| **Research Node** | Implemented | Aggregated search (DDG/Bing) with local memory context. Requires external search APIs. |
+| **Context Memory** | Implemented and Exercised | Remembers what we talked about via local FAISS store. |
+| **Hardware Routing**| Implemented | Detects GPU (NVIDIA/AMD/Intel) or CPU-only and picks the right model. Requires actual hardware. |
+| **Conversation API**| Implemented and Exercised | Full history management via API. |
+| **Desktop Wrapper** | Implemented | Tauri-based window with system shortcuts. |
 
 ## 3-Month Personal Roadmap
 
 ### Month 1: Make It Usable
 **Goal**: Use it daily without thinking about the setup.
 - [x] Single-command startup (Docker for Desktop, Local for Laptop).
-- [x] Hardware-aware model selection (GPU vs NPU).
+- [x] Hardware-aware model selection (GPU vs NPU) - requires actual hardware.
 - [ ] System tray integration (always accessible).
 - [ ] Auto-start on boot configuration.
 - [ ] Cross-device conversation sync (SQLite + simple sync service).
 
 ### Month 2: Make It Reliable
 **Goal**: Works perfectly even when conditions aren't.
-- [x] Persistent memory across sessions (FAISS + metadata).
-- [ ] Offline-first workflows (everything core works without internet).
-- [ ] Model download automation (checks, downloads, verifies).
-- [ ] Global hotkey for voice input (works app-unfocused).
-- [ ] Degraded mode indicator (shows what works when offline).
+- [x] Persistent memory across sessions (FAISS + metadata) - locally exercised.
+- [x] Offline-first workflows (everything core works without internet) - requires external dependencies for AI features.
+- [ ] Model download automation (checks, downloads, verifies) - requires external dependencies.
+- [ ] Global hotkey for voice input (works app-unfocused) - requires external voice models.
+- [ ] Degraded mode indicator (shows what works when offline) - requires external dependencies.
 
 ### Month 3: Make It Essential
 **Goal**: Feel handicapped working without it.
-- [ ] Task-specific model optimization (different LLMs for different nodes).
-- [ ] Research summarization workflow (deep dive + memory).
-- [ ] Context pinning ("remember this project permanently").
-- [ ] Global conversation search ("what did we discuss about X?").
-- [ ] Voice-first UI refinement (faster than typing).
+- [ ] Task-specific model optimization (different LLMs for different nodes) - requires external LLMs.
+- [ ] Research summarization workflow (deep dive + memory) - requires external LLMs.
+- [x] Context pinning ("remember this project permanently") - implemented and locally exercised.
+- [ ] Global conversation search ("what did we discuss about X?") - requires external dependencies.
+- [ ] Voice-first UI refinement (faster than typing) - requires external voice models.
 
 ## Technical "Under the Hood"
 - **The Graph**: Tasks are DAGs. Reliability comes from retries and checkpoints.
@@ -55,7 +55,7 @@ A personal AI assistant that runs on my hardware (Desktop + Laptop), handles my 
 
 ## Verification Pillar
 System functionality is verified periodically via `validation/validate_backend.py`.
-- **Backend**: 23+ tests covering core logic and feature parity. (Maintenance: Ongoing - Deprecations removed in Sprint 1).
+- **Backend**: Core functionality validated through comprehensive test suite. (Maintenance: Ongoing - Deprecations removed in Sprint 1).
 - **Frontend**: Vitest suites for UI components.
 - **Intelligence**: E2E smoke tests for real model inference.
 
@@ -77,5 +77,5 @@ System functionality is verified periodically via `validation/validate_backend.p
 - [x] Enable runtime DAG construction based on user intent (Plan Queue).
 
 ### Phase 4: Deep Memory & Active Learning (COMPLETED)
-- [x] Implement Active Memory nodes for mid-task learning.
-- [x] Add Context Pinning for long-term project persistence.
+- [x] Implement Active Memory nodes for mid-task learning - implemented but not exercised.
+- [x] Add Context Pinning for long-term project persistence - implemented and locally exercised.
