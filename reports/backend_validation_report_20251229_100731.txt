@@ -1,0 +1,72 @@
+JARVISv3 Backend Validation Session started at 2025-12-29T10:07:31.426184
+Report File: reports\backend_validation_report_20251229_100731.txt
+============================================================
+SUCCESS: Virtual environment found at: backend\.venv\Scripts\python.exe
+
+============================================================
+UNIT TESTS
+============================================================
+SUCCESS: Using Python interpreter: backend\.venv\Scripts\python.exe (Python 3.12.10)
+  ✓ PASS: tests/unit/test_auth.py::test_auth_manager
+  ✓ PASS: tests/unit/test_budget.py::test_budget_service_get_state
+  ✓ PASS: tests/unit/test_budget.py::test_budget_service_check_budget
+  ✓ PASS: tests/unit/test_budget.py::test_budget_service_log_usage
+  ✓ PASS: tests/unit/test_context.py::test_context_schemas_validation
+  ✓ PASS: tests/unit/test_context.py::test_context_builder
+  ✓ PASS: tests/unit/test_context.py::test_context_lifecycle
+  ✓ PASS: tests/unit/test_core_services.py::test_database_initialization
+  ✓ PASS: tests/unit/test_core_services.py::test_auth_manager
+  ✓ PASS: tests/unit/test_core_services.py::test_budget_management
+  ✓ PASS: tests/unit/test_core_services.py::test_privacy_service
+  ✓ PASS: tests/unit/test_database.py::test_database_initialization
+  ✓ PASS: tests/unit/test_database.py::test_budget_management
+  ✓ PASS: tests/unit/test_memory.py::test_memory_operations
+  ✓ PASS: tests/unit/test_memory.py::test_active_memory_node
+  ✓ PASS: tests/unit/test_memory_service.py::test_memory_service_enhancements
+  ✓ PASS: tests/unit/test_model_router.py::test_model_router_available_providers
+  ✓ PASS: tests/unit/test_model_router.py::test_model_router_select_model
+  ✓ PASS: tests/unit/test_model_router.py::test_model_router_generate_response
+  ✓ PASS: tests/unit/test_observability.py::test_observability_setup
+  ✓ PASS: tests/unit/test_privacy_service.py::test_privacy_service_enhancements
+  ✓ PASS: tests/unit/test_search.py::test_search_node
+  ✓ PASS: tests/unit/test_search.py::test_mcp_dispatcher
+  ✓ PASS: tests/unit/test_validators.py::test_validator_pipeline
+  ✓ PASS: tests/unit/test_validators.py::test_security_validation
+  ○ SKIP: tests/unit/test_voice_service.py::test_voice_service_enhancements
+  ✓ PASS: tests/unit/test_workflow_engine.py::test_workflow_engine_basic
+SUCCESS: Unit: ======================= 26 passed, 1 skipped in 12.41s ========================
+
+============================================================
+INTEGRATION TESTS
+============================================================
+SUCCESS: Using Python interpreter: backend\.venv\Scripts\python.exe (Python 3.12.10)
+SUCCESS: Integration tests completed
+
+============================================================
+AGENTIC TESTS
+============================================================
+SUCCESS: Using Python interpreter: backend\.venv\Scripts\python.exe (Python 3.12.10)
+  ✓ PASS: tests/agentic/test_cyclic_loops.py::test_cyclic_workflow_execution
+  ✓ PASS: tests/agentic/test_dynamic_planning.py::test_dynamic_planning
+  ✓ PASS: tests/agentic/test_memory_integration.py::test_memory_integration_in_workflow
+SUCCESS: Agentic tests completed
+
+============================================================
+AI INTELLIGENCE VALIDATION (E2E)
+============================================================
+SUCCESS: Using Python interpreter: backend\.venv\Scripts\python.exe (Python 3.12.10)
+  ✓ PASS: tests/integration/test_model_execution.py::test_model_provider_availability
+  ○ SKIP: tests/integration/test_model_execution.py::test_real_inference_execution
+WARNING: AI Intelligence: SOME TESTS WERE SKIPPED (no models available)
+FAILED: AI Intelligence: FAIL (validation requires actual model connectivity)
+
+============================================================
+BACKEND VALIDATION SUMMARY
+============================================================
+Unit Tests:        PASS
+Integration Tests: FAIL
+Agentic Tests:     PASS
+AI Intelligence:   FAIL
+============================================================
+
+!!! Validation failed - see specific component failures above

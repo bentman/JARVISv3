@@ -90,23 +90,11 @@ System functionality is verified periodically via `scripts/validate_backend.py`,
 - **Frontend**: Vitest suites for UI components.
 - **Intelligence**: E2E smoke tests for real model inference.
 
-## 4-Phase Evolution Plan (2025-2026)
+## Development Roadmap
 
-### Phase 1: Validation & Codebase Hygiene (COMPLETED)
-- [x] Modernize dependencies (ddgs update).
-- [x] Eliminate deprecation warnings (datetime.now(UTC), model_dump()).
-- [x] Fix async/await issues in testing suite.
-- [x] Standardize modern Python standards in AGENTS.md.
+See CHANGE_ROADMAP.md for the complete, sequenced development plan. Current status:
+- **Phase 1-4**: Completed (Foundation through basic memory capabilities)
+- **Phase 5-9**: Defined for operational maturity and advanced features
+- **Personal Workflows**: Parallel track for usability enhancements
 
-### Phase 2: Operationalizing Cyclic State Machines (IMPLEMENTED)
-- [x] Upgrade WorkflowEngine to support conditional cyclic edges.
-- [x] Implement Reflector nodes for self-correction.
-- [x] Refactor Code Assistant to use cyclic Write-Test-Fix loop.
-
-### Phase 3: Dynamic Supervisor Routing (IMPLEMENTED)
-- [x] Implement Supervisor Agent for dynamic plan generation.
-- [x] Enable runtime DAG construction based on user intent (Plan Queue).
-
-### Phase 4: Deep Memory & Active Learning (PARTIALLY EXERCISED)
-- [x] Implement Active Memory nodes for mid-task learning - implemented but not exercised.
-- [x] Add Context Pinning for long-term project persistence - implemented and locally exercised.
+The roadmap provides explicit completion criteria, dependencies, and success metrics for each development phase.

@@ -6,6 +6,8 @@
 
 JARVISv3 is a local-first AI assistant designed for daily workflows on your machines. It's built on a **Workflow Graph** architecture, which means instead of just chatting, it coordinates specialized agents to handle things like search, deep research, code creation, code review, and memory retrieval — all while running on your own hardware.
 
+**Development Status**: Currently in Phase 4 of 9 (Basic Memory capabilities). See CHANGE_ROADMAP.md for the complete development plan and current priorities.
+
 ## 🔍 Reality Check: What works?
 
 | Feature | Status | Notes |

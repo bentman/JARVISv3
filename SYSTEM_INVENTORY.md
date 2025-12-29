@@ -73,6 +73,21 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - Hardware profiling and model selection
 - Vector store with semantic search
 
+**Contextual Intelligence**
+- Active Memory nodes integrated into workflow execution
+- Context evolution during multi-step task execution
+- Intelligent adaptation based on learned execution patterns
+- Pattern recognition and workflow optimization
+- Dynamic context enhancement from memory operations
+
+**Observability**
+- Comprehensive metrics collection (requests, workflows, nodes, models, errors, resources)
+- Prometheus-compatible metrics endpoint
+- Workflow tracing with execution path visibility
+- Health monitoring with automated checks
+- Circuit breaker pattern for external service resilience
+- Resource usage tracking (memory, CPU)
+
 ---
 
 ## State 3: Requires External Dependency

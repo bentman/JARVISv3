@@ -71,6 +71,11 @@ class WorkflowState(BaseModel):
     max_iterations: int = 50  # Circuit breaker for cyclic loops
     plan_queue: List[Dict[str, Any]] = Field(default_factory=list)  # For dynamic planning
 
+    # Context evolution tracking
+    context_evolution: List[Dict[str, Any]] = Field(default_factory=list)  # Track context changes
+    learning_patterns: Dict[str, Any] = Field(default_factory=dict)  # Learned patterns
+    adaptation_count: int = 0  # How many times workflow adapted
+
 
 class WorkflowEngine:
     """Main workflow engine implementing the agentic graph architecture"""
@@ -427,17 +432,100 @@ class WorkflowEngine:
         return {"error": "No context available"}
 
     async def _execute_active_memory_node(self, node: WorkflowNode) -> Dict[str, Any]:
-        """Execute an active memory node"""
+        """Execute an active memory node with context evolution"""
         from .active_memory import active_memory_node
-        
+
         operation = str(node.conditions.get("operation", "")) if node.conditions else ""
         content = node.conditions.get("content") if node.conditions else None
         query = str(node.conditions.get("query", "")) if node.conditions else ""
-        
-        if self.context:
-            return await active_memory_node.execute(self.context, operation, content, query)
-            
-        return {"error": "No context available"}
+
+        if not self.context:
+            return {"error": "No context available"}
+
+        # Execute memory operation
+        result = await active_memory_node.execute(self.context, operation, content, query)
+
+        # Context evolution: Learn from this memory operation
+        if self.state:
+            await self._evolve_context_from_memory(operation, result)
+
+        return result
+
+    async def _evolve_context_from_memory(self, operation: str, result: Dict[str, Any]):
+        """Evolve context based on memory operations"""
+        if not self.context or not self.state:
+            return
+
+        evolution_entry = {
+            "timestamp": datetime.now(UTC).isoformat(),
+            "operation": operation,
+            "node_id": self.state.current_node,
+            "changes": []
+        }
+
+        # Learn patterns based on memory operations
+        if operation == "store" and result.get("status") == "stored":
+            # Learned: This workflow stores information for future use
+            pattern_key = f"stores_{self.context.workflow_context.workflow_name}"
+            if pattern_key not in self.state.learning_patterns:
+                self.state.learning_patterns[pattern_key] = 0
+            self.state.learning_patterns[pattern_key] += 1
+
+            # Evolve context: Add memory capability awareness
+            if "memory_capable" not in self.context.additional_context:
+                self.context.additional_context["memory_capable"] = True
+                evolution_entry["changes"].append("added_memory_capability")
+
+        elif operation == "retrieve" and result.get("status") == "retrieved":
+            # Learned: This workflow uses historical context
+            pattern_key = f"retrieves_{self.context.workflow_context.workflow_name}"
+            if pattern_key not in self.state.learning_patterns:
+                self.state.learning_patterns[pattern_key] = 0
+            self.state.learning_patterns[pattern_key] += 1
+
+            # Evolve context: Enhance with retrieved information
+            retrieved_data = result.get("results", [])
+            if retrieved_data:
+                # Add retrieved context to workflow context
+                if "retrieved_memories" not in self.context.additional_context:
+                    self.context.additional_context["retrieved_memories"] = []
+                self.context.additional_context["retrieved_memories"].extend(retrieved_data)
+                evolution_entry["changes"].append(f"added_{len(retrieved_data)}_memories")
+
+        # Record evolution if any changes occurred
+        if evolution_entry["changes"]:
+            self.state.context_evolution.append(evolution_entry)
+            self.state.adaptation_count += 1
+            logger.info(f"Context evolved: {evolution_entry['changes']} (adaptations: {self.state.adaptation_count})")
+
+    def adapt_workflow_from_patterns(self) -> Dict[str, Any]:
+        """Adapt workflow behavior based on learned patterns"""
+        if not self.state:
+            return {"adapted": False, "reason": "no_state"}
+
+        adaptations = []
+
+        # Check for memory-intensive workflows
+        memory_patterns = [k for k in self.state.learning_patterns.keys() if "stores_" in k or "retrieves_" in k]
+        if len(memory_patterns) > 1:  # Lower threshold for pattern detection
+            adaptations.append("memory_intensive_workflow")
+            # Could add memory optimization nodes here
+
+        # Check for repetitive patterns
+        repetitive_ops = sum(self.state.learning_patterns.values())
+        if repetitive_ops > 5:
+            adaptations.append("repetitive_operations")
+            # Could suggest workflow optimization
+
+        if adaptations:
+            logger.info(f"Workflow adapted based on patterns: {adaptations}")
+            return {
+                "adapted": True,
+                "adaptations": adaptations,
+                "pattern_count": len(self.state.learning_patterns)
+            }
+
+        return {"adapted": False, "reason": "insufficient_patterns"}
 
     async def _execute_remote_node(self, node_id: str, remote_node_id: str) -> Dict[str, Any]:
         """Proxy node execution to a remote JARVISv3 instance"""

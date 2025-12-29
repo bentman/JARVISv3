@@ -185,7 +185,7 @@ async def startup_event():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """Basic health check endpoint"""
     from .core.model_manager import model_manager
     available_models = await model_manager.get_available_models()
     cache_healthy = await cache_service.healthy()
@@ -206,6 +206,61 @@ async def health_check():
             "count": len(available_models)
         }
     }
+
+
+@app.get("/health/detailed")
+async def detailed_health_check():
+    """Comprehensive health check with system metrics"""
+    from .core.observability import health_monitor
+
+    # Run all registered health checks
+    health_results = await health_monitor.run_health_checks()
+
+    # Get system metrics
+    system_metrics = health_monitor.get_system_metrics()
+
+    # Determine overall health status
+    all_healthy = all(health_results.values())
+    status = "healthy" if all_healthy else "degraded"
+
+    return {
+        "status": status,
+        "timestamp": datetime.now(UTC).isoformat(),
+        "version": "0.1.0",
+        "health_checks": health_results,
+        "system_metrics": system_metrics,
+        "uptime_seconds": system_metrics["uptime_seconds"]
+    }
+
+
+@app.get("/metrics")
+async def get_metrics():
+    """Prometheus-compatible metrics endpoint"""
+    from .core.observability import metrics_collector
+
+    # Update resource usage (in a real system, this would be done periodically)
+    import psutil
+    memory_mb = psutil.virtual_memory().used / (1024 * 1024)
+    cpu_percent = psutil.cpu_percent(interval=0.1)
+
+    metrics_collector.update_resource_usage(memory_mb=memory_mb, cpu_percent=cpu_percent)
+
+    # Return Prometheus-formatted metrics
+    return Response(
+        content=metrics_collector.get_prometheus_metrics(),
+        media_type="text/plain; version=0.0.4; charset=utf-8"
+    )
+
+
+@app.get("/health/circuit-breakers")
+async def circuit_breaker_status():
+    """Check status of circuit breakers for external dependencies"""
+    from .core.circuit_breaker import circuit_breaker_manager
+
+    if not hasattr(circuit_breaker_manager, 'get_all_status'):
+        return {"status": "circuit_breaker_not_configured"}
+
+    return await circuit_breaker_manager.get_all_status()
 
 @app.get("/api/v1/hardware/status")
 async def get_hardware_status():
