@@ -7,6 +7,7 @@ from enum import Enum
 from typing import Dict, Any, Optional, Callable, List, AsyncIterable
 from pydantic import BaseModel, Field
 from datetime import datetime, UTC
+from dataclasses import dataclass
 import logging
 from ..context.schemas import TaskContext, NodeContext, SystemContext, WorkflowContext, TaskType, UserIntent, ContextBudget
 
@@ -38,6 +39,42 @@ class NodeType(str, Enum):
     SUPERVISOR = "supervisor"
     ACTIVE_MEMORY = "active_memory"
     END = "end"
+
+
+class ApprovalStatus(str, Enum):
+    """Status of human approval requests"""
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    TIMEOUT = "timeout"
+
+
+@dataclass
+class ApprovalRequest:
+    """Represents a human approval request"""
+    request_id: str
+    workflow_id: str
+    node_id: str
+    user_id: str
+    request_type: str
+    context_data: Dict[str, Any]
+    decision_criteria: Dict[str, Any]
+    status: ApprovalStatus = ApprovalStatus.PENDING
+    created_at: Optional[datetime] = None
+    decided_at: Optional[datetime] = None
+    decision_notes: Optional[str] = None
+
+    def __post_init__(self):
+        if self.created_at is None:
+            self.created_at = datetime.now(UTC)
+
+
+class WorkflowApprovalRequiredException(Exception):
+    """Exception raised when workflow execution requires human approval"""
+
+    def __init__(self, approval_request: ApprovalRequest):
+        self.approval_request = approval_request
+        super().__init__(f"Workflow {approval_request.workflow_id} requires human approval for node {approval_request.node_id}")
 
 
 class WorkflowNode(BaseModel):
@@ -376,13 +413,111 @@ class WorkflowEngine:
             return {"success": False, "error": str(e)}
     
     async def _execute_human_approval_node(self, node: WorkflowNode) -> Dict[str, Any]:
-        """Execute a human approval node"""
-        # This would wait for human approval
-        return {
-            "approved": True,  # In simulation, assume approved
-            "approval_time": datetime.now(UTC).isoformat(),
-            "approver_id": "system"
-        }
+        """Execute a human approval node with workflow pausing"""
+        if not self.context or not self.state:
+            return {"error": "No context or state available"}
+
+        # Extract approval criteria from node conditions
+        request_type = node.conditions.get("request_type", "general") if node.conditions else "general"
+        decision_criteria = node.conditions.get("decision_criteria", {}) if node.conditions else {}
+        timeout_seconds = node.conditions.get("timeout_seconds", 300) if node.conditions else 300  # 5 minutes default
+
+        # Determine if human approval is needed based on criteria
+        needs_approval = await self._evaluate_approval_criteria(request_type, decision_criteria)
+
+        if not needs_approval:
+            # Auto-approve based on criteria
+            return {
+                "approved": True,
+                "auto_approved": True,
+                "reason": "met_auto_approval_criteria",
+                "approval_time": datetime.now(UTC).isoformat(),
+                "approver_id": "system"
+            }
+
+        # Create approval request
+        approval_request = ApprovalRequest(
+            request_id=f"apr_{self.state.workflow_id}_{node.id}_{datetime.now(UTC).timestamp()}",
+            workflow_id=self.state.workflow_id,
+            node_id=node.id,
+            user_id=self.context.system_context.user_id,
+            request_type=request_type,
+            context_data={
+                "workflow_name": self.context.workflow_context.workflow_name,
+                "initiating_query": self.context.workflow_context.initiating_query,
+                "node_results": self.node_results,
+                "current_node": node.id
+            },
+            decision_criteria=decision_criteria
+        )
+
+        # Store approval request (in a real system, this would be in a database)
+        # For now, we'll simulate by pausing execution
+        logger.info(f"Created approval request {approval_request.request_id} for workflow {self.state.workflow_id}")
+
+        # Pause workflow execution by raising a special exception
+        raise WorkflowApprovalRequiredException(approval_request)
+
+    async def _evaluate_approval_criteria(self, request_type: str, criteria: Dict[str, Any]) -> bool:
+        """Evaluate if human approval is needed based on criteria"""
+        if not self.context or not self.state:
+            return True  # Default to requiring approval if no context
+
+        # High-stakes operations always require approval
+        if request_type in ["code_deployment", "security_change", "data_deletion", "financial_transaction"]:
+            return True
+
+        # Check confidence thresholds
+        confidence_threshold = criteria.get("confidence_threshold", 0.8)
+        if "llm_worker" in self.node_results:
+            llm_result = self.node_results["llm_worker"]
+            # In a real system, we'd have confidence scores
+            # For now, assume approval needed for uncertain operations
+            if llm_result.get("tokens_used", 0) > 1000:  # Large responses might need review
+                return True
+
+        # Check for security violations
+        if "validator" in self.node_results:
+            validator_result = self.node_results["validator"]
+            if not validator_result.get("validation_passed", True):
+                return True
+
+        # Check for high-risk content patterns
+        query = self.context.workflow_context.initiating_query.lower()
+        risk_patterns = ["delete", "drop", "remove", "uninstall", "format", "reset"]
+        if any(pattern in query for pattern in risk_patterns):
+            return True
+
+        # Default: auto-approve for low-risk operations
+        return False
+
+    def resume_workflow_after_approval(self, approval_request: ApprovalRequest) -> Dict[str, Any]:
+        """Resume workflow execution after approval decision"""
+        if approval_request.status == ApprovalStatus.APPROVED:
+            logger.info(f"Workflow {approval_request.workflow_id} approved by {approval_request.decision_notes}")
+            return {
+                "approved": True,
+                "approval_time": approval_request.decided_at.isoformat() if approval_request.decided_at else None,
+                "approver_id": approval_request.decision_notes or "unknown",
+                "resume_workflow": True
+            }
+        elif approval_request.status == ApprovalStatus.REJECTED:
+            logger.info(f"Workflow {approval_request.workflow_id} rejected by {approval_request.decision_notes}")
+            return {
+                "approved": False,
+                "rejection_reason": approval_request.decision_notes,
+                "approval_time": approval_request.decided_at.isoformat() if approval_request.decided_at else None,
+                "resume_workflow": False
+            }
+        elif approval_request.status == ApprovalStatus.TIMEOUT:
+            logger.warning(f"Approval request {approval_request.request_id} timed out")
+            return {
+                "approved": False,
+                "reason": "timeout",
+                "resume_workflow": False
+            }
+        else:
+            return {"error": f"Unknown approval status: {approval_request.status}"}
 
     async def _execute_search_web_node(self, node: WorkflowNode) -> Dict[str, Any]:
         """Execute a web search node"""

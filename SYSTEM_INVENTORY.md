@@ -97,10 +97,17 @@ Promotion between states occurs only through an explicit completed mini-phase an
 
 **Resource-Aware Execution**
 - Dynamic GPU memory allocation and management across hardware types (NVIDIA CUDA, AMD, Intel)
-- Hardware-specific acceleration detection (NPU variants: Apple Silicon, Qualcomm ARM64, Intel)
+- Hardware-specific acceleration detection (NPU variants: Apple Silicon M-series, Qualcomm ARM64, Intel)
 - Graceful degradation handling with resource exhaustion detection
 - Optimized model configurations based on detected hardware capabilities
 - Cross-platform deployment optimization for CPU, GPU, and NPU environments
+
+**Human-AI Collaboration**
+- Approval nodes integrated into high-stakes workflows with workflow pausing/resuming
+- Risk-based approval criteria evaluation (high-stakes operations always require approval)
+- Auto-approval for low-risk operations with configurable confidence thresholds
+- Comprehensive approval request data structures with context and decision criteria
+- Workflow state management for approval-dependent execution flow
 
 ---
 
