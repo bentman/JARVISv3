@@ -32,6 +32,7 @@ from .ai.workflows.research_workflow import research_workflow
 from .ai.workflows.dev_workflow import init_dev_workflow
 from .ai.workflows.agent_registry import agent_registry
 from .ai.context.schemas import RemoteNode
+from .ai.workflows.templates import workflow_composer, WorkflowTemplate
 from .core.node_registry import node_registry
 from .core.observability import setup_observability, observability_middleware, health_monitor
 from .core.security import security_validator
@@ -545,6 +546,136 @@ async def get_context_schema():
         "tool_context": "Tool availability and permission context",
         "task_context": "The 'Golden Context' packet combining all context types"
     }
+
+
+@app.get("/api/v1/templates")
+async def list_workflow_templates(category: Optional[str] = None):
+    """List available workflow templates"""
+    templates = workflow_composer.list_templates(category)
+    return {
+        "templates": [
+            {
+                "template_id": t.template_id,
+                "name": t.name,
+                "description": t.description,
+                "category": t.category,
+                "complexity": t.complexity,
+                "estimated_duration": t.estimated_duration,
+                "required_capabilities": t.required_capabilities,
+                "input_schema": t.input_schema,
+                "output_schema": t.output_schema
+            }
+            for t in templates
+        ],
+        "total_count": len(templates),
+        "categories": list(set(t.category for t in templates))
+    }
+
+
+@app.get("/api/v1/templates/{template_id}")
+async def get_workflow_template(template_id: str):
+    """Get details of a specific workflow template"""
+    template = workflow_composer.get_template(template_id)
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    return {
+        "template_id": template.template_id,
+        "name": template.name,
+        "description": template.description,
+        "version": template.version,
+        "category": template.category,
+        "complexity": template.complexity,
+        "estimated_duration": template.estimated_duration,
+        "nodes": template.nodes,
+        "edges": template.edges,
+        "input_schema": template.input_schema,
+        "output_schema": template.output_schema,
+        "required_capabilities": template.required_capabilities,
+        "validation_rules": template.validation_rules,
+        "author": template.author,
+        "created_at": template.created_at.isoformat() if template.created_at else None,
+        "last_validated": template.last_validated.isoformat() if template.last_validated else None
+    }
+
+
+@app.post("/api/v1/templates/compose")
+async def compose_workflow_from_templates(composition_spec: Dict[str, Any]):
+    """Compose a workflow from templates"""
+    try:
+        # Validate user permissions (would be more sophisticated in production)
+        user_id = composition_spec.get("user_id", "system")
+        if not user_id:
+            raise HTTPException(status_code=400, detail="user_id required")
+
+        # Create task context for composition
+        from .ai.context.schemas import (
+            SystemContext, WorkflowContext, UserIntent, TaskType,
+            HardwareState, BudgetState, UserPreferences, ContextBudget
+        )
+
+        context = TaskContext(
+            system_context=SystemContext(
+                user_id=user_id,
+                session_id=f"compose_{datetime.now(UTC).timestamp()}",
+                hardware_state=HardwareState(gpu_usage=0, memory_available_gb=16, cpu_usage=10, current_load=0),
+                budget_state=BudgetState(remaining_pct=100.0),
+                user_preferences=UserPreferences()
+            ),
+            workflow_context=WorkflowContext(
+                workflow_id=f"composed_{datetime.now(UTC).timestamp()}",
+                workflow_name=composition_spec.get("name", "composed_workflow"),
+                initiating_query="Workflow composition request",
+                user_intent=UserIntent(type=TaskType.CHAT, confidence=0.9, description="Compose workflow", priority=1),
+                context_budget=ContextBudget()
+            )
+        )
+
+        # Compose the workflow
+        composed_engine = await workflow_composer.compose_workflow(composition_spec, context)
+
+        if not composed_engine:
+            raise HTTPException(status_code=400, detail="Workflow composition failed")
+
+        # Return composition result
+        return {
+            "status": "success",
+            "workflow_id": context.workflow_context.workflow_id,
+            "composed_engine": {
+                "node_count": len(composed_engine.nodes),
+                "nodes": list(composed_engine.nodes.keys()),
+                "template_instances": len(composition_spec.get("templates", []))
+            },
+            "composition_spec": composition_spec
+        }
+
+    except Exception as e:
+        logger.error(f"Workflow composition error: {e}")
+        raise HTTPException(status_code=500, detail=f"Workflow composition failed: {str(e)}")
+
+
+@app.post("/api/v1/templates/execute/{workflow_id}")
+async def execute_composed_workflow(workflow_id: str, execution_request: Dict[str, Any]):
+    """Execute a previously composed workflow"""
+    try:
+        user_id = execution_request.get("user_id", "system")
+        parameters = execution_request.get("parameters", {})
+
+        # In a production system, we'd store composed workflows and retrieve them
+        # For now, this is a placeholder that would need the composition to be passed
+
+        # This endpoint would execute composed workflows
+        # Implementation would depend on how composed workflows are stored/retrieved
+
+        return {
+            "status": "not_implemented",
+            "message": "Composed workflow execution not yet implemented",
+            "workflow_id": workflow_id
+        }
+
+    except Exception as e:
+        logger.error(f"Composed workflow execution error: {e}")
+        raise HTTPException(status_code=500, detail=f"Execution failed: {str(e)}")
 
 @app.post("/api/v1/voice/transcribe")
 async def transcribe_audio(file: UploadFile = File(...)):

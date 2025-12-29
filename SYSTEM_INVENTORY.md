@@ -80,6 +80,13 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - Pattern recognition and workflow optimization
 - Dynamic context enhancement from memory operations
 
+**Workflow Composability**
+- Template-based workflow composition system
+- Library of validated workflow templates (research, code_review, analysis)
+- Instant composition of complex workflows from reusable components
+- Parameter substitution and inter-template connections
+- Template extension patterns for custom workflows
+
 **Observability**
 - Comprehensive metrics collection (requests, workflows, nodes, models, errors, resources)
 - Prometheus-compatible metrics endpoint
