@@ -95,6 +95,13 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - Circuit breaker pattern for external service resilience
 - Resource usage tracking (memory, CPU)
 
+**Resource-Aware Execution**
+- Dynamic GPU memory allocation and management across hardware types (NVIDIA CUDA, AMD, Intel)
+- Hardware-specific acceleration detection (NPU variants: Apple Silicon, Qualcomm ARM64, Intel)
+- Graceful degradation handling with resource exhaustion detection
+- Optimized model configurations based on detected hardware capabilities
+- Cross-platform deployment optimization for CPU, GPU, and NPU environments
+
 ---
 
 ## State 3: Requires External Dependency
