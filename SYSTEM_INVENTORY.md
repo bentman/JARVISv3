@@ -44,26 +44,15 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - DELETE /api/v1/conversation/{id}
 - Health check endpoint
 
----
-
-## State 2: Implemented but Not Exercised
-
-**Model Management**
-- ModelRouter provider selection (remaining providers)
-- ModelManager download and verification logic
-- Hardware detection and routing logic
-- Model profiles (light, medium, heavy)
-
-**Voice Services**
-- VoiceService STT and TTS pipeline
-- Wake word detection
-- Audio quality assessment
-- Piper and espeak fallback mechanisms
-
 **Security and Validation**
 - Budget tracking and cloud escalation
 - Authentication and permission systems
 - Privacy level controls
+
+**Frontend**
+- React 18 + TypeScript application
+- UI components (BudgetSummary, HardwareIndicator, SettingsModal, VoiceRecorder, WorkflowVisualizer)
+- API service integration
 
 **AI Workflows**
 - ChatWorkflow node graph
@@ -72,16 +61,17 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - Agent registry and collaboration
 - Search node functionality
 
+**Model Management**
+- ModelRouter provider selection (remaining providers)
+- ModelManager download and verification logic
+- Hardware detection and routing logic
+- Model profiles (light, medium, heavy)
+
 **Advanced Features**
 - Distributed node registration and communication
 - MCP server integration
 - Hardware profiling and model selection
 - Vector store with semantic search
-
-**Frontend**
-- React 18 + TypeScript application
-- UI components (BudgetSummary, HardwareIndicator, SettingsModal, VoiceRecorder, WorkflowVisualizer)
-- API service integration
 
 ---
 
@@ -97,6 +87,13 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - Piper TTS models
 - Audio processing dependencies
 
+**Voice Services**
+- VoiceService STT and TTS pipeline
+- Wake word detection
+- Audio quality assessment
+- Piper and espeak fallback mechanisms
+- Emotion detection functionality
+
 **External Services**
 - Search providers (DuckDuckGo, Bing, Google, Tavily)
 - Redis caching
@@ -108,4 +105,3 @@ Promotion between states occurs only through an explicit completed mini-phase an
 
 **Infrastructure**
 - Docker deployment configurations
-- Frontend React application

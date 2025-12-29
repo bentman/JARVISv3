@@ -50,10 +50,10 @@ async def test_mcp_dispatcher():
     assert res_list["success"] is True
     
     # 2. Web Search Tool
-    with patch("backend.mcp_servers.base_server.DDGS") as MockDDGS:
+    with patch("ddgs.DDGS") as MockDDGS:
         instance = MockDDGS.return_value
         instance.text.return_value = [{"title": "Test", "href": "http://test.com", "body": "test"}]
-        
+
         res_search = await mcp_dispatcher.call_tool("web_search", {"query": "test"})
         assert res_search["success"] is True
         assert res_search["count"] > 0

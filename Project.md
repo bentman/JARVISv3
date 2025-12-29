@@ -85,8 +85,8 @@ This setup makes the assistant more reliable because:
 - **Privacy**: Local-first isn't a feature; it's the architecture. PII is redacted before anything hits a web-search provider.
 
 ## Verification Pillar
-System functionality is verified periodically via `validation/validate_backend.py`.
-- **Backend**: Core functionality validated through comprehensive test suite. (Maintenance: Ongoing - Deprecations removed in Sprint 1).
+System functionality is verified periodically via `scripts/validate_backend.py`, the authoritative backend validation tool.
+- **Backend**: Core functionality validated through comprehensive, dynamically discovered test suite with per-test visibility. (Maintenance: Ongoing - Deprecations removed opportunistically).
 - **Frontend**: Vitest suites for UI components.
 - **Intelligence**: E2E smoke tests for real model inference.
 
@@ -98,15 +98,15 @@ System functionality is verified periodically via `validation/validate_backend.p
 - [x] Fix async/await issues in testing suite.
 - [x] Standardize modern Python standards in AGENTS.md.
 
-### Phase 2: Operationalizing Cyclic State Machines (COMPLETED)
+### Phase 2: Operationalizing Cyclic State Machines (IMPLEMENTED)
 - [x] Upgrade WorkflowEngine to support conditional cyclic edges.
 - [x] Implement Reflector nodes for self-correction.
 - [x] Refactor Code Assistant to use cyclic Write-Test-Fix loop.
 
-### Phase 3: Dynamic Supervisor Routing (COMPLETED)
+### Phase 3: Dynamic Supervisor Routing (IMPLEMENTED)
 - [x] Implement Supervisor Agent for dynamic plan generation.
 - [x] Enable runtime DAG construction based on user intent (Plan Queue).
 
-### Phase 4: Deep Memory & Active Learning (COMPLETED)
+### Phase 4: Deep Memory & Active Learning (PARTIALLY EXERCISED)
 - [x] Implement Active Memory nodes for mid-task learning - implemented but not exercised.
 - [x] Add Context Pinning for long-term project persistence - implemented and locally exercised.

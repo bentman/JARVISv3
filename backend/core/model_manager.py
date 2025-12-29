@@ -194,8 +194,7 @@ class ModelManager:
                 repo_id=model_profile.model_id,
                 filename=model_profile.filename,
                 local_dir=str(self.models_dir),
-                local_dir_use_symlinks=False,
-                resume_download=True
+                local_dir_use_symlinks=False
             )
             
             return Path(downloaded_path).exists()

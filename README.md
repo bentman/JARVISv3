@@ -257,11 +257,11 @@ JARVISv3 includes several built-in workflows:
 ---
 
 ## ✅ System Validation
-Run the system validation suite periodically to check core functionality:
+Run the authoritative backend validation suite to check core functionality:
 ```bash
-./backend/.venv/Scripts/python validation/validate_backend.py
+./backend/.venv/Scripts/python scripts/validate_backend.py
 ```
-*Checks Backend Core logic, Feature Parity, and Frontend build.*
+This tool automatically discovers and runs all tests across Unit, Integration, and Agentic categories, providing per-test visibility with status indicators. Generates terminal summary plus timestamped reports in `reports/` for detailed results.
 
 ---
 

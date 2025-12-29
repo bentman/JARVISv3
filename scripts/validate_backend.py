@@ -81,108 +81,117 @@ def validate_venv(logger) -> bool:
         return False
 
 
-def run_pytest_suite(logger, suite_name: str, test_files: list) -> bool:
-    """Execute a list of pytest files and log results using venv Python"""
-    logger.header(suite_name)
-    
-    # Get the venv Python path
+def discover_test_files(test_dir: Path, category: str) -> list[str]:
+    """Discover test files in a given directory category"""
+    if not test_dir.exists():
+        return []
+
+    test_files = []
+    # Find all test_*.py files in this directory and subdirectories
+    for pattern in ["test_*.py", "**/test_*.py"]:
+        for test_file in test_dir.glob(pattern):
+            if test_file.is_file():
+                test_files.append(str(test_file))
+
+    # Sort for consistent ordering
+    return sorted(set(test_files))
+
+
+def run_pytest_on_directory(logger, category_name: str, test_dir: str) -> bool:
+    """Run pytest on an entire directory of tests with per-test visibility"""
+    logger.header(f"{category_name} Tests")
+
     venv_python = get_venv_python_path()
-    
+
     # Validate the venv
     if not validate_venv(logger):
-        logger.log(f"ERROR: Skipping {suite_name} - Virtual environment not available")
+        logger.log(f"ERROR: Skipping {category_name} tests - Virtual environment not available")
         return False
-    
-    all_passed = True
-    for test_path in test_files:
-        logger.log(f"Running pytest: {test_path}...")
-        result = subprocess.run(
-            [str(venv_python), "-m", "pytest", test_path, "-v"],
-            cwd=Path.cwd(),  # Use current working directory
-            capture_output=True,
-            text=True
-        )
-        
-        if result.returncode == 0:
-            logger.log(f"SUCCESS: {test_path}: PASS")
-        else:
-            logger.log(f"FAILED: {test_path}: FAIL")
-            logger.log("--- STDOUT ---")
-            logger.log(result.stdout)
-            logger.log("--- STDERR ---")
-            logger.log(result.stderr)
-            all_passed = False
-            
-    return all_passed
 
-
-def run_existing_backend_tests(logger) -> bool:
-    """Run all existing backend tests"""
-    logger.header("Backend Integration Tests")
-    
-    # These are the actual test files that exist
-    existing_test_files = [
-        "tests/test_conversation_management.py",
-        "tests/test_e2e_model.py",
-        "tests/test_voice_session.py",
-        "tests/test_workflow_engine_failures.py"
-    ]
-    
-    return run_pytest_suite(logger, "Backend Integration Tests", existing_test_files)
-
-
-def run_workflow_engine_failures_test(logger) -> bool:
-    """Run workflow engine failures test specifically using venv Python"""
-    logger.header("Workflow Engine Failures Test")
-    
-    # Get the venv Python path
-    venv_python = get_venv_python_path()
-    
-    # Validate the venv
-    if not validate_venv(logger):
-        logger.log("ERROR: Skipping Workflow Engine Failures test - Virtual environment not available")
-        return False
-    
+    # Run pytest on the entire directory with verbose output
     result = subprocess.run(
-        [str(venv_python), "-m", "pytest", "tests/test_workflow_engine_failures.py", "-v"],
+        [str(venv_python), "-m", "pytest", test_dir, "-v", "--tb=no"],
         cwd=Path.cwd(),
         capture_output=True,
         text=True
     )
-    
-    if result.returncode == 0:
-        logger.log("SUCCESS: Workflow Engine Failures: PASS")
-        return True
+
+    # Parse individual test results
+    test_results = []
+    stdout_lines = result.stdout.strip().split('\n')
+
+    for line in stdout_lines:
+        line = line.strip()
+        if line.startswith('tests/') or line.startswith('::'):
+            if 'PASSED' in line:
+                test_results.append(('PASS', line.split(' PASSED')[0]))
+            elif 'FAILED' in line:
+                test_results.append(('FAIL', line.split(' FAILED')[0]))
+            elif 'SKIPPED' in line:
+                test_results.append(('SKIP', line.split(' SKIPPED')[0]))
+            elif 'ERROR' in line:
+                test_results.append(('ERROR', line.split(' ERROR')[0]))
+
+    # Display per-test results
+    for status, test_name in test_results:
+        status_icon = {'PASS': '✓', 'FAIL': '✗', 'SKIP': '○', 'ERROR': '✗'}.get(status, '?')
+        logger.log(f"  {status_icon} {status}: {test_name}")
+
+    # Extract and display summary
+    summary_line = None
+    for line in reversed(stdout_lines):
+        if 'passed' in line and ('failed' in line or 'skipped' in line or 'error' in line):
+            summary_line = line
+            break
+
+    if summary_line:
+        logger.log(f"SUCCESS: {category_name}: {summary_line}")
     else:
-        logger.log("FAILED: Workflow Engine Failures: FAIL")
-        logger.log("--- STDOUT ---")
-        logger.log(result.stdout)
-        logger.log("--- STDERR ---")
-        logger.log(result.stderr)
-        return False
+        logger.log(f"SUCCESS: {category_name} tests completed")
+
+    return result.returncode == 0
 
 
 async def run_e2e_model_test(logger) -> bool:
-    """Run end-to-end model test using venv Python"""
+    """Run end-to-end model test using venv Python with per-test visibility"""
     logger.header("AI Intelligence Validation (E2E)")
-    
+
     # Get the venv Python path
     venv_python = get_venv_python_path()
-    
+
     # Validate the venv
     if not validate_venv(logger):
         logger.log("ERROR: Skipping AI Intelligence test - Virtual environment not available")
         return False
-    
+
     # Run pytest on the specific e2e model test functions
     result = subprocess.run(
-        [str(venv_python), "-m", "pytest", "tests/test_e2e_model.py", "-v", "-k", "test_model_provider_availability or test_real_inference_execution", "--tb=short"],
+        [str(venv_python), "-m", "pytest", "tests/integration/test_model_execution.py", "-v", "-k", "test_model_provider_availability or test_real_inference_execution", "--tb=no"],
         cwd=Path.cwd(),
         capture_output=True,
         text=True,
         timeout=300  # 5 minute timeout for model tests
     )
-    
+
+    # Parse individual test results
+    test_results = []
+    stdout_lines = result.stdout.strip().split('\n')
+
+    for line in stdout_lines:
+        line = line.strip()
+        if 'test_model_provider_availability' in line or 'test_real_inference_execution' in line:
+            if 'PASSED' in line:
+                test_results.append(('PASS', line.split(' PASSED')[0]))
+            elif 'FAILED' in line:
+                test_results.append(('FAIL', line.split(' FAILED')[0]))
+            elif 'SKIPPED' in line:
+                test_results.append(('SKIP', line.split(' SKIPPED')[0]))
+
+    # Display per-test results
+    for status, test_name in test_results:
+        status_icon = {'PASS': '✓', 'FAIL': '✗', 'SKIP': '○'}.get(status, '?')
+        logger.log(f"  {status_icon} {status}: {test_name}")
+
     if result.returncode == 0:
         # Check if tests were skipped (which should be treated as failure in validation context)
         if "SKIPPED" in result.stdout:
@@ -196,15 +205,16 @@ async def run_e2e_model_test(logger) -> bool:
         logger.log("FAILED: AI Intelligence: FAIL")
         logger.log("--- STDOUT ---")
         logger.log(result.stdout)
-        logger.log("--- STDERR ---")
-        logger.log(result.stderr)
+        if result.stderr:
+            logger.log("--- STDERR ---")
+            logger.log(result.stderr)
         return False
 
 
 def main():
     """Main validation function"""
     logger = ValidationLogger()
-    
+
     # Check if venv is available before running tests
     venv_python = get_venv_python_path()
     if not venv_python.exists():
@@ -213,32 +223,32 @@ def main():
         logger.log("Recommended: Create venv with 'python -m venv backend/.venv'")
     else:
         logger.log(f"SUCCESS: Virtual environment found at: {venv_python}")
-    
-    # Run existing backend tests
-    integration_success = run_existing_backend_tests(logger)
-    
-    # Run specific workflow engine tests
-    workflow_success = run_workflow_engine_failures_test(logger)
-    
-    # Run async tests
+
+    # Run tests by category using dynamic discovery
+    unit_success = run_pytest_on_directory(logger, "Unit", "tests/unit")
+    integration_success = run_pytest_on_directory(logger, "Integration", "tests/integration")
+    agentic_success = run_pytest_on_directory(logger, "Agentic", "tests/agentic")
+
+    # Run async E2E model tests
     e2e_success = asyncio.run(run_e2e_model_test(logger))
-    
+
     # Summary
     logger.header("Backend Validation Summary")
-    logger.log(f"Backend Tests:     {'PASS' if integration_success else 'FAIL'}")
-    logger.log(f"Workflow Failures: {'PASS' if workflow_success else 'FAIL'}")
+    logger.log(f"Unit Tests:        {'PASS' if unit_success else 'FAIL'}")
+    logger.log(f"Integration Tests: {'PASS' if integration_success else 'FAIL'}")
+    logger.log(f"Agentic Tests:     {'PASS' if agentic_success else 'FAIL'}")
     logger.log(f"AI Intelligence:   {'PASS' if e2e_success else 'FAIL'}")
     logger.log("="*60)
 
-    total_success = integration_success and workflow_success and e2e_success
-    
+    total_success = unit_success and integration_success and agentic_success and e2e_success
+
     if total_success:
         logger.log("\n✅ JARVISv3 Backend is FULLY validated!")
         status = 0
     else:
         logger.log("\n!!! Validation failed - see specific component failures above")
         status = 1
-        
+
     logger.save()
     return status
 

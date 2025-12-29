@@ -1,10 +1,6 @@
 """
-Conversation Management Tests for JARVISv3
-Tests conversation storage, retrieval, and management functionality.
-"""
-"""
-Conversation Management and Data Persistence Tests for JARVISv3
-Tests conversation storage, retrieval, and persistence functionality.
+API Endpoints Integration Tests for JARVISv3
+Tests conversation management endpoints and data persistence functionality.
 """
 import pytest
 from fastapi.testclient import TestClient
@@ -166,5 +162,3 @@ async def test_conversation_statistics():
     assert "token_count" in stats
     assert stats["message_count"] >= 2
     assert stats["token_count"] >= 25
-
-

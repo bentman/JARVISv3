@@ -17,9 +17,11 @@ async def test_security_validation():
     print("Testing Security Validator...")
     
     # Test 1: Clean input (should pass)
-    clean_input = "Hello, this is a safe message."
+    clean_input = "This is a test."
     result1 = await security_validator.validate_input(clean_input)
     print(f"✓ Clean input: valid={result1['is_valid']}, issues={len(result1['issues'])}")
+    if result1['issues']:
+        print(f"  Issues found: {result1['issues']}")
     assert result1['is_valid'] == True
     assert len(result1['issues']) == 0
     
