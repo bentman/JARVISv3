@@ -109,6 +109,13 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - Comprehensive approval request data structures with context and decision criteria
 - Workflow state management for approval-dependent execution flow
 
+**Embedding Reliability Enhancement**
+- Feature hashing embedding service with zero external dependencies for offline semantic search
+- Unified embedding service with automatic fallback from transformer to feature hashing embeddings
+- Deterministic embeddings suitable for approximate semantic search with L2 normalization
+- Enhanced vector store with embedding strategy metadata and fallback search capability
+- Seamless embedding strategy switching while maintaining search quality and reliability
+
 ---
 
 ## State 3: Requires External Dependency
