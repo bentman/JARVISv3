@@ -78,6 +78,11 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - Hardware profiling and model selection
 - Vector store with semantic search
 
+**Frontend**
+- React 18 + TypeScript application
+- UI components (BudgetSummary, HardwareIndicator, SettingsModal, VoiceRecorder, WorkflowVisualizer)
+- API service integration
+
 ---
 
 ## State 3: Requires External Dependency
