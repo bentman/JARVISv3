@@ -21,9 +21,9 @@ A personal AI assistant that runs on my hardware (Desktop + Laptop), handles my 
 | **Conversation API**| Implemented and Exercised | Full history management via API. |
 | **Desktop Wrapper** | Implemented | Tauri-based window with system shortcuts. |
 
-## Development Status: All Roadmap Phases Completed
+## Development Status: Core Roadmap Phases Completed
 
-All 9 roadmap phases have been completed and validated through comprehensive testing:
+Roadmap phases 1-10 have been completed and validated through comprehensive testing (Phase 11 reverted due to incomplete implementation):
 - ✅ **Backend Infrastructure**: 112 tests passing across Unit, Integration, and Agentic categories
 - ✅ **Workflow Architecture**: Agentic graph with dynamic planning, checkpoints, and state management
 - ✅ **Context Management**: Typed, versioned context with lifecycle, validation, and lineage tracking
@@ -33,6 +33,7 @@ All 9 roadmap phases have been completed and validated through comprehensive tes
 - ✅ **Security & Privacy**: Multi-layer validation, PII redaction, and audit trails
 - ✅ **Workflow Composability**: Template-based composition system with reusable workflow patterns
 - ✅ **Production Readiness**: Full test coverage, error handling, and deployment optimization
+- ✅ **Embedding Reliability Enhancement**: Feature hashing fallback for offline semantic search
 
 See CHANGE_LOG.md for detailed implementation history and CHANGE_ROADMAP.md for the complete development plan.
 
@@ -74,14 +75,14 @@ This setup makes the assistant more reliable because:
 - **Privacy**: Local-first isn't a feature; it's the architecture. PII is redacted before anything hits a web-search provider.
 
 ## Verification Pillar
-System functionality is verified periodically via `scripts/validate_backend.py`, the authoritative backend validation tool.
+System functionality is verified periodically via `scripts/validate_backend.py`, the authoritative backend validation tool. Deprecation warnings are explicitly surfaced during validation runs, reported separately from test failures, with expectation of zero warnings as ongoing maintenance. Report retention is automated (older than 7 days removed) to prevent accumulation while maintaining recent validation history. `scripts/validate_backend.py` remains the primary source of truth for backend validation.
 - **Backend**: Core functionality validated through comprehensive, dynamically discovered test suite with per-test visibility. (Maintenance: Ongoing - Deprecations removed opportunistically).
 - **Frontend**: Vitest suites for UI components.
 - **Intelligence**: E2E smoke tests for real model inference.
 
 ## Development Roadmap
 
-See CHANGE_ROADMAP.md for the complete, sequenced development plan. All 9 roadmap phases have been completed and validated:
+See CHANGE_ROADMAP.md for the complete, sequenced development plan. Roadmap phases 1-10 have been completed and validated (Phase 11 reverted):
 
 - ✅ **Phase 1-2**: Foundation (Workflow Architecture, Agent Registry)
 - ✅ **Phase 3-4**: Context Management (Code-Driven Context, Layered Context Model)
@@ -90,5 +91,6 @@ See CHANGE_ROADMAP.md for the complete, sequenced development plan. All 9 roadma
 - ✅ **Phase 7**: Workflow Composability (Template System, Instant Composition)
 - ✅ **Phase 8**: Resource-Aware Execution (Dynamic Memory, Hardware Optimization)
 - ✅ **Phase 9**: Human-AI Collaboration (Approval Nodes, Decision Boundaries)
+- ✅ **Phase 10**: Embedding Reliability Enhancement (Feature Hashing Fallback)
 
 The roadmap provides explicit completion criteria, dependencies, and success metrics for each development phase. See CHANGE_LOG.md for implementation details and validation results.

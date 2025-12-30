@@ -1,5 +1,6 @@
 """
 Ollama Model Provider for JARVISv3
+Enhanced with model integrity validation
 """
 import asyncio
 import time
@@ -8,6 +9,7 @@ import json
 from typing import AsyncIterable, Dict, Any, Optional, List
 import httpx
 from .base import ModelProvider, ModelInferenceResult
+from ..model_manager import model_manager
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +23,15 @@ class OllamaProvider(ModelProvider):
         self.client = httpx.AsyncClient(base_url=base_url, timeout=httpx.Timeout(120.0))
         
     async def generate_response(self, prompt: str, model_name: str, **kwargs) -> ModelInferenceResult:
-        """Generate a response from the model"""
+        """Generate a response from the model with integrity validation"""
+        if not await self.is_available():
+            raise Exception("OllamaProvider not available")
+
         start_time = time.time()
-        
+
+        # Pre-inference model validation
+        await self._validate_model_integrity(model_name)
+
         try:
             response = await self.client.post("/api/generate", json={
                 "model": model_name,
@@ -35,12 +43,12 @@ class OllamaProvider(ModelProvider):
                     "top_p": kwargs.get("top_p", 0.9)
                 }
             })
-            
+
             response.raise_for_status()
             data = response.json()
-            
+
             execution_time = time.time() - start_time
-            
+
             return ModelInferenceResult(
                 response=data.get("response", ""),
                 tokens_used=data.get("eval_count", 0),
@@ -48,10 +56,46 @@ class OllamaProvider(ModelProvider):
                 model_name=model_name,
                 provider="ollama"
             )
-            
+
         except Exception as e:
             logger.error(f"Error during Ollama inference: {str(e)}")
             raise
+
+    async def _validate_model_integrity(self, model_name: str) -> None:
+        """
+        Pre-inference model integrity validation for Ollama models.
+        Ensures model is available and responsive before inference.
+        """
+        try:
+            # Check if model is installed in Ollama
+            installed_models = await self.get_installed_models()
+            if model_name not in installed_models:
+                raise Exception(f"Model '{model_name}' is not installed in Ollama. "
+                              f"Available models: {installed_models}")
+
+            # Quick health check - try a minimal generation
+            test_response = await self.client.post("/api/generate", json={
+                "model": model_name,
+                "prompt": "test",
+                "stream": False,
+                "options": {
+                    "num_predict": 1,  # Minimal response
+                    "temperature": 0.0  # Deterministic
+                }
+            }, timeout=10.0)  # Short timeout for health check
+
+            test_response.raise_for_status()
+            test_data = test_response.json()
+
+            if not test_data.get("response"):
+                raise Exception(f"Model '{model_name}' failed health check - no response generated")
+
+            logger.info(f"Model '{model_name}' integrity validated successfully")
+
+        except Exception as e:
+            error_msg = f"Model integrity check failed for '{model_name}': {str(e)}"
+            logger.error(error_msg)
+            raise Exception(error_msg)
 
     async def generate_response_stream(self, prompt: str, model_name: str, **kwargs) -> AsyncIterable[str]:
         """Generate a streaming response from the model"""

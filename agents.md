@@ -61,12 +61,14 @@ Use these exact commands for consistent operations:
 - System Validation: `./backend/.venv/Scripts/python scripts/validate_backend.py`
 - Unit Tests: `./backend/.venv/Scripts/python -m pytest tests/`
 - Backend Start: `./backend/.venv/Scripts/python backend/main.py`
-- Frontend Start: `cd frontend && npm run dev`
+- Frontend Start: `pushd frontend && npm run dev`
 
 ### Environment Management
-- **Virtual Environment**: Always use `backend/.venv` for Python operations
-- **Dependency Isolation**: Never install packages globally
-- **Path Consistency**: Use relative paths from project root
+- **Shell Assumption**: PowerShell 7 (pwsh.exe) on Windows 11; commands use forward slashes (/) for cross-shell compatibility where possible.
+- **Virtual Environment**: Always use `backend/.venv` for Python operations; activate with `backend/.venv/Scripts/activate`.
+- **Dependency Isolation**: Never install packages globally; all Python dependencies via venv pip.
+- **Path Consistency**: Use relative paths from project root; scripts invoked as `./backend/.venv/Scripts/python scripts/script_name.py`.
+- **Validation Entry Point**: Run `./backend/.venv/Scripts/python scripts/validate_backend.py` from repo root for authoritative testing.
 
 ### Definition of Done
 A feature is complete when:

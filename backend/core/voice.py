@@ -250,8 +250,12 @@ class VoiceService:
         # Ensure model is downloaded
         weights = await self.model_manager.download_recommended_model("stt")
         if not weights or not weights.exists():
-            # Fallback for dev/test without models
+            # Fallback for dev/test without models - validate audio format
             logger.warning("Whisper weights not available. Using mock STT.")
+            # Basic validation: check if it looks like valid audio data
+            if len(audio_data) < 44 or not audio_data.startswith(b'RIFF'):
+                # Doesn't look like a valid WAV file
+                raise ValueError("Invalid audio data format")
             return "This is a mock transcription.", 1.0
 
         try:

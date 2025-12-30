@@ -148,3 +148,16 @@ Promotion between states occurs only through an explicit completed mini-phase an
 
 **Infrastructure**
 - Docker deployment configurations
+
+---
+
+## Intentionally Skipped / Reverted Capabilities
+
+**Model Integrity Assurance** (REVERTED - Not Pursued)
+- SHA256 checksum-based model integrity verification for corruption detection
+- Pre-inference model validation with automatic corrupted file removal
+- Checksum storage and retrieval system with persistent checksums.json
+- Automated integrity checking during model loading across all providers
+- Clear error reporting for corrupted model files with recovery guidance
+
+*Rationale*: Implementation was incomplete (4/12 tests failing), introduced unnecessary complexity without proportional value for local development context, and provided false confidence rather than genuine reliability improvement. Reverted to simplify system and maintain operational stability.

@@ -135,24 +135,24 @@ class ModelManager:
         )
     
     async def download_model(self, model_profile: ModelProfile) -> Optional[Path]:
-        """Download model with advanced verification and fallbacks"""
+        """Download model with fallbacks"""
         model_path = self.models_dir / model_profile.filename
-        
-        # Check if already exists and is valid
-        if model_path.exists() and await self._verify_model_integrity(model_path, model_profile):
-            logger.info(f"Model {model_profile.filename} already exists and is valid")
+
+        # Check if already exists
+        if model_path.exists():
+            logger.info(f"Model {model_profile.filename} already exists")
             return model_path
-        
+
         # Acquire download lock to prevent concurrent downloads
         lock_key = model_profile.filename
         if lock_key not in self.download_locks:
             self.download_locks[lock_key] = asyncio.Lock()
-        
+
         async with self.download_locks[lock_key]:
             # Double-check after acquiring lock
-            if model_path.exists() and await self._verify_model_integrity(model_path, model_profile):
+            if model_path.exists():
                 return model_path
-            
+
             # Attempt download with fallbacks
             return await self._download_with_fallbacks(model_profile, model_path)
     
@@ -168,11 +168,11 @@ class ModelManager:
             try:
                 logger.info(f"Attempting to download {model_profile.filename} using {strategy.__name__}")
                 result = await strategy(model_profile, model_path)
-                if result and await self._verify_model_integrity(model_path, model_profile):
+                if result:
                     logger.info(f"Successfully downloaded {model_profile.filename}")
                     return model_path
                 else:
-                    logger.warning(f"Download strategy {strategy.__name__} failed or verification failed")
+                    logger.warning(f"Download strategy {strategy.__name__} failed")
                     # Clean up partial download
                     if model_path.exists():
                         model_path.unlink()
@@ -215,47 +215,7 @@ class ModelManager:
         logger.info("Backup download strategy not yet implemented")
         return False
     
-    async def _verify_model_integrity(self, model_path: Path, model_profile: ModelProfile) -> bool:
-        """Verify model file integrity using SHA-256 checksums"""
-        if not model_path.exists():
-            return False
-        
-        # Check cache first
-        cache_key = f"{model_profile.model_id}/{model_profile.filename}"
-        if cache_key in self.verification_cache:
-            return self.verification_cache[cache_key]
-        
-        try:
-            # Calculate SHA-256 checksum
-            sha256_hash = hashlib.sha256()
-            file_size = model_path.stat().st_size
-            
-            with open(model_path, "rb") as f:
-                # Read file in chunks to handle large files efficiently
-                for chunk in iter(lambda: f.read(8192), b""):
-                    sha256_hash.update(chunk)
-            
-            calculated_checksum = sha256_hash.hexdigest()
-            # In a real implementation, we would compare with a known checksum
-            # For now, we'll verify the size is reasonable
-            expected_size_min = model_profile.size_mb * 0.8 * 1024 * 1024
-            
-            is_valid = file_size > expected_size_min
-            
-            # Cache result
-            self.verification_cache[cache_key] = is_valid
-            
-            if is_valid:
-                logger.info(f"Model {model_profile.filename} passed integrity verification")
-            else:
-                logger.error(f"Model {model_profile.filename} failed integrity verification (size too small)")
-                model_path.unlink(missing_ok=True)
-            
-            return is_valid
-            
-        except Exception as e:
-            logger.error(f"Model verification failed for {model_profile.filename}: {e}")
-            return False
+
 
     async def download_recommended_model(self, tier: str) -> Optional[Path]:
         """Compatibility method for existing calls"""

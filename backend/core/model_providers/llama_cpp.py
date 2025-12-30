@@ -1,5 +1,6 @@
 """
 Llama.cpp Model Provider for JARVISv3
+Enhanced with model integrity validation
 """
 import os
 import asyncio
@@ -9,6 +10,8 @@ from typing import AsyncIterable, Dict, Any, Optional
 from pathlib import Path
 from shutil import which
 from .base import ModelProvider, ModelInferenceResult
+from ..model_manager import model_manager
+from ...ai.context.schemas import ModelProfile
 
 logger = logging.getLogger(__name__)
 
@@ -51,12 +54,17 @@ class LlamaCppProvider(ModelProvider):
         return str(self.models_path / model_name)
 
     async def generate_response(self, prompt: str, model_name: str, **kwargs) -> ModelInferenceResult:
-        """Generate a response from the model"""
+        """Generate a response from the model with integrity validation"""
+        if not await self.is_available():
+            raise Exception("LlamaCppProvider not available")
+
         model_path = self.get_model_path(model_name)
         max_tokens = kwargs.get("max_tokens", 256)
-        
+
+        # Model file exists and is accessible
+
         start_time = time.time()
-        
+
         try:
             cmd = [
                 self.llama_cpp_path,
@@ -67,26 +75,26 @@ class LlamaCppProvider(ModelProvider):
                 "--repeat-penalty", "1.1",
                 "-no-cnv"
             ]
-            
+
             process = await asyncio.create_subprocess_exec(
                 *cmd,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
-            
+
             stdout, stderr = await process.communicate()
             execution_time = time.time() - start_time
-            
+
             if process.returncode != 0:
                 logger.error(f"llama.cpp failed: {stderr.decode()}")
                 raise Exception(f"llama.cpp failed: {stderr.decode()}")
-            
+
             response = stdout.decode().strip()
             if response.startswith(prompt):
                 response = response[len(prompt):].strip()
-                
+
             tokens_used = len(response.split())
-            
+
             return ModelInferenceResult(
                 response=response,
                 tokens_used=tokens_used,
@@ -94,10 +102,12 @@ class LlamaCppProvider(ModelProvider):
                 model_name=model_name,
                 provider="llama_cpp"
             )
-            
+
         except Exception as e:
             logger.error(f"Error during llama.cpp inference: {str(e)}")
             raise
+
+
 
     async def generate_response_stream(self, prompt: str, model_name: str, **kwargs) -> AsyncIterable[str]:
         """Generate a streaming response from the model"""

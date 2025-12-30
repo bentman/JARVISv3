@@ -84,7 +84,7 @@ class VectorStore:
             return
 
         try:
-            # Try transformer embeddings first (higher quality)
+            # Use available embeddings (will fallback to feature hashing if transformer unavailable)
             embeddings = embedding_service.embed_texts(texts, use_transformer=True)
 
             # Ensure embeddings are the right shape and normalized

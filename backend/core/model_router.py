@@ -70,21 +70,25 @@ class ModelRouter:
         if "npu" in hardware_state.available_tiers:
             profile = "npu-optimized"
 
-        # Check availability of providers
-        available_providers = await self.get_available_providers()
-        
-        # 1. Prefer Ollama if available
-        if "ollama" in available_providers:
+        # Get candidate providers that support the required task (regardless of current availability)
+        candidate_providers = []
+        for name, provider in self.providers.items():
+            models = provider.get_supported_models()
+            if any(task_type in models.get(p, {}) for p in models):
+                candidate_providers.append(name)
+
+        # 1. Prefer Ollama if it has models for this task
+        if "ollama" in candidate_providers:
             ollama_models = self.providers["ollama"].get_supported_models()
             if profile in ollama_models and task_type in ollama_models[profile]:
                 return ollama_models[profile][task_type], "ollama", None
-        
+
         # 2. Fallback to llama_cpp
-        if "llama_cpp" in available_providers:
+        if "llama_cpp" in candidate_providers:
             llama_models = self.providers["llama_cpp"].get_supported_models()
             if profile in llama_models and task_type in llama_models[profile]:
                 return llama_models[profile][task_type], "llama_cpp", None
-            
+
             # Fallback within llama_cpp for different tiers
             for p in ["medium", "light"]:
                 if p in llama_models and task_type in llama_models[p]:
@@ -93,11 +97,11 @@ class ModelRouter:
         # 3. Check for Remote Nodes if local tiers are insufficient
         best_remote = await node_registry.find_best_node_for_task(profile)
         if best_remote and best_remote.node_id != node_registry.local_node_id:
-             # We found a better remote node! 
+             # We found a better remote node!
              # For now we'll just return its ID and let the caller handle the proxy
              return "remote_model", "remote_provider", best_remote.node_id
-        
-        # 4. Last resort fallback (model might need downloading locally)
+
+        # 4. Last resort fallback (models may need downloading)
         recommended = model_manager.model_profiles.get(profile, {}).get("filename")
         model_name = recommended if isinstance(recommended, str) else "Llama-3.2-3B-Instruct-Q4_K_M.gguf"
         return model_name, "llama_cpp", None
