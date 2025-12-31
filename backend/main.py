@@ -42,6 +42,7 @@ from .core.auth import auth_manager, User
 from .core.database import database_manager
 from .core.voice import voice_service
 from .core.cache_service import cache_service
+from .core.config import settings
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -180,7 +181,8 @@ async def initialize_workflows():
 async def startup_event():
     """Initialize the application on startup"""
     await initialize_workflows()
-    await cache_service.initialize()
+    if settings.ENABLE_CACHE:
+        await cache_service.initialize()
     logger.info("JARVISv3 API started successfully")
 
 

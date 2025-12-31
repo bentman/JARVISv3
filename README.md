@@ -6,14 +6,14 @@
 
 JARVISv3 is a local-first AI assistant designed for daily workflows on your machines. It's built on a **Workflow Graph** architecture, which means instead of just chatting, it coordinates specialized agents to handle things like search, deep research, code creation, code review, and memory retrieval — all while running on your own hardware.
 
-**Development Status**: All 9 roadmap phases completed. See CHANGE_ROADMAP.md for the complete development history and CHANGE_LOG.md for implementation details.
+**Development Status**: All backend roadmap phases completed. See CHANGE_ROADMAP.md for the complete development history and CHANGE_LOG.md for implementation details.
 
 ## 🔍 Reality Check: What works?
 
 | Feature | Status | Notes |
 | :--- | :--- | :--- |
 | **Basic Chat** | ⚠️ Implemented | Requires external LLM provider (Ollama/llama.cpp). |
-| **Voice Interaction**| ⚠️ Implemented | Wake word and STT/TTS are implemented but require external voice models. |
+| **Voice Interaction**| ⚠️ Implemented | Wake word and STT/TTS implemented but require external voice models. |
 | **Memory** | ✅ Exercised | Semantic search across past conversations (FAISS) - locally functional. |
 | **Web Research** | ⚠️ Implemented | Aggregated search with privacy redaction. Requires external search APIs. |
 | **Multi-Machine** | ⚠️ Implemented | Runs on Win/Mac/Linux with distributed node support. |
@@ -26,25 +26,18 @@ JARVISv3 is a local-first AI assistant designed for daily workflows on your mach
 ### 🖥️ Desktop (with NVIDIA GPU)
 Use Docker for the easiest setup with GPU acceleration:
 1.  **Configure**: `cp .env.example .env` (Add API keys for web search if needed).
-2.  **Launch**: `docker-compose up --build`
-3.  **Access**: UI at `http://localhost:3000`, API at `http://localhost:8000`.
+2.  **Build**: `make docker-build`
+3.  **Launch**: `make docker-up`
+4.  **Access**: UI at `http://localhost:3000`, API at `http://localhost:8000`.
+5.  **Monitor**: `make docker-logs`
 
 ### 💻 Laptop (Mac M-Series or NPU)
 Run natively for best performance and NPU access:
-1.  **Backend**: 
-    ```bash
-    cd backend
-    python -m venv .venv
-    source .venv/bin/activate  # Windows: .venv\Scripts\activate
-    pip install -r requirements.txt
-    ./.venv/Scripts/python main.py
-    ```
-2.  **Frontend**:
-    ```bash
-    cd frontend
-    npm install
-    npm run dev
-    ```
+1.  **Setup**: `make setup` (creates venv and installs dependencies)
+2.  **Validate**: `make validate` (runs comprehensive test suite)
+3.  **Backend**: `make backend-dev` (in another terminal)
+4.  **Frontend**: `make frontend-dev` (in another terminal)
+5.  **Access**: UI at `http://localhost:3000`, API at `http://localhost:8000`.
 
 ---
 
@@ -264,11 +257,11 @@ Run the authoritative backend validation suite to check core functionality:
 ./backend/.venv/Scripts/python scripts/validate_backend.py
 ```
 
-**Latest Validation Status (2025-12-29)**:
-- ✅ **Unit Tests**: 26 passed, 1 skipped
-- ✅ **Integration Tests**: 83 passed, 2 skipped
-- ✅ **Agentic Tests**: 3 passed, 0 skipped
-- ❌ **AI Intelligence**: 1 passed, 3 skipped (requires external model connectivity)
+**Latest Validation Status (2025-12-30)**:
+- ✅ **Unit Tests**: PASS_WITH_SKIPS (27 tests, 2 skipped)
+- ✅ **Integration Tests**: PASS_WITH_SKIPS (98 tests, 3 skipped)
+- ✅ **Agentic Tests**: PASS (3 tests)
+- ✅ **AI Intelligence**: PASS_WITH_SKIPS (1 passed, 3 skipped - requires external model connectivity)
 
 This tool automatically discovers and runs all tests across Unit, Integration, and Agentic categories, providing per-test visibility with status indicators. Generates terminal summary plus timestamped reports in `reports/` for detailed results.
 

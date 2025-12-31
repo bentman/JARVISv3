@@ -1,5 +1,5 @@
-# Multi-stage build for production frontend
-FROM node:18-alpine AS builder
+# Build stage for production frontend
+FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
@@ -7,8 +7,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Copy source code
 COPY . .
@@ -16,17 +16,8 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
+# Output built files to /frontend for shared volume access
+RUN mkdir -p /frontend && cp -r /app/dist/* /frontend/
 
-# Copy built frontend to nginx
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Expose port
-EXPOSE 80
-
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Keep container running for volume sharing
+CMD ["tail", "-f", "/dev/null"]

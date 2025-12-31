@@ -15,3 +15,5 @@ __pycache__
 htmlcov
 *.log
 tests/
+reports/
+coverage.xml

@@ -30,14 +30,18 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # Data Directory
+    JARVIS_DATA_DIR: str = "./data"
+
     # Database
-    DATABASE_URL: str = "sqlite:///./JARVISv3.db"
-    
+    _DATABASE_URL: str = "sqlite:///./JARVISv3.db"  # Fallback for backward compatibility
+
     # AI Models
     MODEL_PATH: str = "./models"
     DEFAULT_LLM_TIER: str = "medium"
-    
+
     # Redis (Caching)
+    ENABLE_CACHE: bool = True
     REDIS_URL: str = "redis://localhost:6379/0"
     
     # Voice Service
@@ -65,6 +69,15 @@ class Settings(BaseSettings):
     def effective_secret_key(self) -> str:
         """Return the user-defined secret key or the auto-generated one"""
         return self.JWT_SECRET_KEY or self.SECRET_KEY
+
+    @property
+    def DATABASE_URL(self) -> str:
+        """Construct database URL using the configured data directory"""
+        db_path = Path(self.JARVIS_DATA_DIR) / "JARVISv3.db"
+        return f"sqlite:///{db_path}"
+
+    # Keep backward compatibility - if someone accesses DATABASE_URL directly
+    # it will use the constructed path, but we keep _DATABASE_URL as fallback
 
 
 settings = Settings()

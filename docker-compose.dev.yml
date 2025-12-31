@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    image: jarvisv3-backend-dev
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    labels:
+      com.jarvis.project: "JARVISv3"
+      com.jarvis.service: "backend"
+      com.jarvis.variant: "dev"
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:///./JARVISv3.db}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change_me_in_production}
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8000
+      - LOG_LEVEL=info
+      - PRIVACY_LEVEL=${PRIVACY_LEVEL:-medium}
+      - MONTHLY_BUDGET_USD=${MONTHLY_BUDGET_USD:-100.0}
+      - TOKEN_BUDGET_PER_WORKFLOW=${TOKEN_BUDGET_PER_WORKFLOW:-1000}
+    volumes:
+      - ./:/app
+      - ./models:/app/models:ro
+      - ./data:/app/data
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+      - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:8000}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly no
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    restart: unless-stopped

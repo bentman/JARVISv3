@@ -245,6 +245,18 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
+# Build outputs
+dist/
+build/
+
+# Validation and reports
+reports/
+.pytest_cache/
+coverage.xml
+
+# Logs
+*.log
+
 # OS Metadata
 .DS_Store
 Thumbs.db

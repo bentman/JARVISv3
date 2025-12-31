@@ -32,6 +32,7 @@ class VoiceService:
     """
 
     def __init__(self):
+        logger.info("Initializing VoiceService...")
         self.wake_word_model = self._init_wake_word()
         self.stt_model = None
         self.tts_model = None
@@ -40,6 +41,7 @@ class VoiceService:
         self.models_path.mkdir(exist_ok=True)
         self._emotion_model = None
         self._model_manager = None
+        logger.info("VoiceService initialized (lazy loading for executables)")
 
     @property
     def model_manager(self):
@@ -97,6 +99,7 @@ class VoiceService:
     def _find_whisper_model(self) -> str:
         """Find Whisper model executable"""
         possible_paths = [
+            "/usr/local/bin/whisper",  # Docker build location
             "./whisper.cpp/whisper",
             "./backend/whisper.cpp/whisper",
             "whisper",
@@ -117,6 +120,7 @@ class VoiceService:
     def _find_piper_model(self) -> str:
         """Find Piper TTS executable"""
         possible_paths = [
+            "/usr/local/bin/piper",  # Docker build location
             "./piper/src/piper",
             "./backend/piper/src/piper",
             "piper"
@@ -246,17 +250,12 @@ class VoiceService:
         """Convert speech to text using Whisper"""
         if not self.stt_model:
             self.stt_model = self._find_whisper_model()
+            logger.info(f"Whisper executable: {self.stt_model}")
 
         # Ensure model is downloaded
         weights = await self.model_manager.download_recommended_model("stt")
         if not weights or not weights.exists():
-            # Fallback for dev/test without models - validate audio format
-            logger.warning("Whisper weights not available. Using mock STT.")
-            # Basic validation: check if it looks like valid audio data
-            if len(audio_data) < 44 or not audio_data.startswith(b'RIFF'):
-                # Doesn't look like a valid WAV file
-                raise ValueError("Invalid audio data format")
-            return "This is a mock transcription.", 1.0
+            raise Exception("Voice STT unavailable - Whisper model weights not found. Use Docker or install locally.")
 
         try:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
@@ -298,31 +297,20 @@ class VoiceService:
 
     async def text_to_speech(self, text: str, speed: float = 1.0, pitch: float = 0.0) -> bytes:
         """
-        Convert text to speech using Piper with prosody control, falls back to espeak.
+        Convert text to speech using Piper with prosody control.
         :param speed: 0.5 to 2.0
         :param pitch: -1.0 to 1.0 (if supported)
         """
+        if not self.tts_model:
+            self.tts_model = self._find_piper_model()
+            logger.info(f"Piper executable: {self.tts_model}")
+
+        # Ensure models are downloaded
+        voice_model_path = await self.model_manager.download_recommended_model("tts")
+        if not voice_model_path or not voice_model_path.exists():
+            raise Exception("Voice TTS unavailable - Piper voice model not found. Use Docker or install locally.")
+
         try:
-            if not self.tts_model:
-                self.tts_model = self._find_piper_model()
-
-            # Ensure models are downloaded
-            voice_model_path = await self.model_manager.download_recommended_model("tts")
-            # Also ensure config is downloaded
-            from .model_manager import ModelProfile
-            config_details = self.model_manager.model_profiles["tts-medium-config"]
-            config_profile = ModelProfile(
-                model_id=config_details["model_id"],
-                filename=config_details["filename"],
-                profile=config_details.get("profile", "medium"),
-                size_mb=config_details["size_mb"],
-                description=config_details["description"]
-            )
-            await self.model_manager.download_model(config_profile)
-
-            if not voice_model_path or not voice_model_path.exists():
-                raise FileNotFoundError("Piper voice model not available")
-
             with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=".txt", encoding='utf-8') as temp_input:
                 temp_input.write(text)
                 temp_input_path = temp_input.name
@@ -336,7 +324,7 @@ class VoiceService:
                 "--length_scale", str(1.0 / speed), # Piper uses length_scale (inverse of speed)
                 "--output_file", temp_output_path
             ]
-            
+
             # Use asyncio for non-blocking execution
             with open(temp_input_path, 'r', encoding='utf-8') as input_file:
                 process = await asyncio.create_subprocess_exec(
@@ -357,15 +345,15 @@ class VoiceService:
             for p in [temp_input_path, temp_output_path]:
                 if os.path.exists(p):
                     os.unlink(p)
-            
+
             if not audio:
                 raise RuntimeError("Piper generated empty audio")
-                
+
             return audio
 
         except Exception as e:
-            logger.warning(f"Piper TTS failed, attempting fallback: {e}")
-            return await self._tts_fallback(text)
+            logger.error(f"TTS Error: {e}")
+            raise
 
     async def _tts_fallback(self, text: str) -> bytes:
         """Fallback to espeak-ng or espeak"""

@@ -32,21 +32,18 @@ RUN cmake -B build -DCMAKE_BUILD_TYPE=Release \
  && cmake --build build -j
 
 
-# -------- Production runtime stage --------
-FROM python:3.11-slim as production
-
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+# -------- Development runtime stage --------
+FROM python:3.11-slim as development
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV APP_HOME=/app
-ENV PYTHONPATH="${APP_HOME}"
+ENV PYTHONPATH="${APP_HOME}/backend"
 ENV LD_LIBRARY_PATH="/usr/local/lib:/opt/whisper/bin:/opt/whisper/lib:/opt/llama/lib:/opt/llama/bin:/opt/piper_build/pi/lib:/usr/local/bin:${LD_LIBRARY_PATH}"
 
-# Set work directory
-WORKDIR ${APP_HOME}
+# Set work directory to backend directory (like prod)
+WORKDIR ${APP_HOME}/backend
 
 # Install system dependencies
 RUN apt-get update \
@@ -88,23 +85,19 @@ RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu \
     && pip install --no-cache-dir -r requirements.txt
 
-# Create necessary directories with proper permissions
-RUN mkdir -p /app /app/data /app/logs /models \
-    && chown -R appuser:appuser /app /models
+# Create necessary directories (no ownership changes for dev)
+RUN mkdir -p /app /app/data /app/logs /models
 
-# Copy project
-COPY --chown=appuser:appuser . .
-
-# Switch to non-root user
-USER appuser
+# Copy project (from backend context, like prod)
+COPY . .
 
 # Image metadata labels
 LABEL com.jarvis.project="JARVISv3" \
       com.jarvis.service="backend" \
-      com.jarvis.variant="prod"
+      com.jarvis.variant="dev"
 
 # Expose port
 EXPOSE 8000
 
-# Run the application
+# Run the application (dev runs as root from backend package)
 CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

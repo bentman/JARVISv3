@@ -25,9 +25,14 @@ class CacheService:
         self.url = url or settings.REDIS_URL
         self.client: Optional[redis.Redis] = None
         self._connected = False
+        self._enabled = settings.ENABLE_CACHE
 
     async def initialize(self):
         """Initialize the Redis connection"""
+        if not self._enabled:
+            logger.info("Cache service disabled via configuration")
+            return
+
         if not self._connected:
             try:
                 self.client = redis.from_url(self.url, decode_responses=True)
@@ -41,6 +46,8 @@ class CacheService:
 
     async def healthy(self) -> bool:
         """Check if cache service is healthy"""
+        if not self._enabled:
+            return False  # Consider disabled cache as not healthy
         if not self._connected or not self.client:
             return False
         try:

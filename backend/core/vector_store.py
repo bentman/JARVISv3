@@ -9,6 +9,7 @@ import logging
 from typing import List, Dict, Any, Tuple, Optional
 from pathlib import Path
 from .embedding_service import embedding_service
+from .config import settings
 
 # Optional imports for vector store
 try:
@@ -227,5 +228,9 @@ class VectorStore:
         logger.info("Vector store cleared")
 
 
-# Global instance
-vector_store = VectorStore()
+# Global instance - use configured data directory
+data_dir = Path(settings.JARVIS_DATA_DIR)
+vector_store = VectorStore(
+    index_path=str(data_dir / "vector_store.index"),
+    metadata_path=str(data_dir / "vector_metadata.pkl")
+)
