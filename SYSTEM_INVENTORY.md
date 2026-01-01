@@ -130,12 +130,14 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - Piper TTS models
 - Audio processing dependencies
 
-**Voice Services**
-- VoiceService STT and TTS pipeline
-- Wake word detection
-- Audio quality assessment
-- Piper and espeak fallback mechanisms
-- Emotion detection functionality
+**Voice Wake Word Detection**
+- Requires openwakeword library and tflite runtime.
+
+**Voice Speech-to-Text (STT)**
+- Requires Whisper executable and model weights.
+
+**Voice Text-to-Speech (TTS)**
+- Requires Piper executable and voice models.
 
 **External Services**
 - Search providers (DuckDuckGo, Bing, Google, Tavily)

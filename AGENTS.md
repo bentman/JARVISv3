@@ -67,6 +67,24 @@ If you suspect CHANGE_LOG.md contains an inaccurate entry:
 * do not edit history
 * append a corrective entry stating what was claimed, what is actually true, and the evidence
 
+Correction/Reversion Entry Patterns:
+
+For corrections of inaccurate prior entries:
+```
+### YYYY-MM-DD HH:MM UTC — Correction: [brief description]
+- Prior entry [timestamp] claimed [what was inaccurately claimed].
+- Actual state: [factual current truth].
+- Evidence: [command/outcome or static verification].
+```
+
+For reversions of completed changes:
+```
+### YYYY-MM-DD HH:MM UTC — Reverted: [change description]
+- Reversion reason: [why change was reverted].
+- Changes undone: [what was removed/reverted].
+- Evidence: [command/outcome showing reversion].
+```
+
 ## 4 Git Safety Rules
 
 Never run destructive git commands without explicit approval:

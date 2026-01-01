@@ -13,7 +13,7 @@ A personal AI assistant that runs on my hardware (Desktop + Laptop), handles my 
 
 | Capability | Status | Description |
 | :--- | :--- | :--- |
-| **Voice Interface** | ⚠️ Implemented | Wake word (Jarvis), STT, and TTS. Requires external voice models. |
+| **Voice Interface** | ⚠️ Requires External | Wake word (Jarvis), STT, and TTS. Requires external voice models. |
 | **Code Assistant** | ⚠️ Implemented | Specialized node for code review and refactoring. Requires external LLM. |
 | **Research Node** | ⚠️ Implemented | Aggregated search (DDG/Bing) with local memory context. Requires external search APIs. |
 | **Context Memory** | ✅ Exercised | Remembers what we talked about via local FAISS store. |

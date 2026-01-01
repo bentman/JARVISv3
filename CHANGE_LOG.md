@@ -497,3 +497,19 @@ capability state, or project rules. It is factual and append-only.
 - **Evidence**: `docker images` shows both `jarvisv3-backend-dev` and `jarvisv3-backend` images; `docker inspect` confirms correct image tags and metadata labels on built images.
 
 ---
+
+### 2026-01-01 20:43 UTC — Granularized Voice Services in system inventory
+
+- Split "Voice Services" into three sub-components: Voice Wake Word Detection, Voice Speech-to-Text (STT), Voice Text-to-Speech (TTS).
+- All remain Requires External Dependency with specific deps noted.
+- Evidence: Code analysis shows distinct external requirements (openwakeword/tflite, Whisper models, Piper models); maintains factual state without promotion.
+
+---
+
+### 2026-01-01 20:52 UTC — Recategorized voice service test from unit to integration
+
+- Moved tests/unit/test_voice_service.py to tests/integration/test_voice_service.py to correct categorization.
+- Reason: Test exercises real voice service methods requiring external dependencies (Whisper/Piper executables/models), though skips cleanly when unavailable; belongs in integration testing.
+- Evidence: pytest tests/integration/test_voice_service.py passes with expected skip; validate_backend.py reports PASS_WITH_SKIPS for integration category.
+
+---
