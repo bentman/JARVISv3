@@ -1,6 +1,6 @@
 {
   "files.readonlyInclude": {
-    "JARVISv2_ref/**": true,
-    ".roo/rules/**": true
+    "./JARVISv2_ref/**": true,
+    "./.roo/rules/**": true
   }
 }

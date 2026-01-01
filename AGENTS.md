@@ -1,159 +1,161 @@
-# JARVISv3: Agentic AI Coding Instructions & Rules
+# AGENTS.md — JARVISv3 Working Agreements (Canonical)
+This file is the single authoritative instruction set for AI agents and contributors working in this repository. AGENTS.md is intended to function like a “README for agents” (clear, predictable, and tool-agnostic), and should stay concise to avoid drift and tool-specific sprawl.
 
-This document establishes standards for developers and AI agents working on JARVISv3. It defines project structure, engineering practices, and operational protocols to ensure consistency and reliability.
+## 0 Non-Negotiables
+Do not guess. If you cannot verify something from the repo, say what you checked and ask what to do next.
+No “completed/verified” claims without reproducible evidence.
+No scope expansion. Do the minimum required for the requested outcome, then stop.
+Avoid sprawl. Reuse existing patterns/files; do not introduce new repo artifacts unless explicitly requested.
 
----
+## 1 Governance and Truth Sources
+Authoritative sources (priority order):
+- AGENTS.md — rules for work in this repo (this file).
+- SYSTEM_INVENTORY.md — capability truth ledger (“what is true now”).
+- CHANGE_LOG.md — append-only history of completed work, with evidence.
+- CHANGE_ROADMAP.md — forward plan only; must not contradict inventory truth.
+- Project.md — intent and design framing; must not exceed inventory truth.
+If reference rules conflict with AGENTS.md, follow AGENTS.md and call out the mismatch.
 
-## 1. Project Structure
+## 2 Capability State Classification
+Every capability must be listed in exactly one state in SYSTEM_INVENTORY.md:
+- Implemented and Locally Exercised
+- Implemented but Not Exercised
+- Requires External Dependency
+Rules:
+- No readiness language and no percentages.
+- Do not promote capabilities based on mocks/stubs when the real dependency is missing.
+- Promotions require reproducible evidence on the current repo state.
 
-### Directory Layout
-```
-backend/
-├── ai/           # Core intelligence (workflows, context, generators, validators)
-├── core/         # Integrated services (hardware, privacy, budget, voice, memory)
-├── main.py       # FastAPI application entry point
-└── requirements.txt
+## 3 Mini-Phase Technique
+All work is done via mini-phases.
+Mini-phase title convention:
+`Mini-Phase: <short intent>`
+Mini-phase requirements:
+- One purpose.
+- Action-only (explicit actions; no implied authority).
+- Explicit stop condition.
+- No implicit follow-on work.
 
-frontend/         # React 18 + TypeScript application
-scripts/          # Operational tools (validation, deployment)
-tests/            # Integration and unit tests
-reports/          # Validation output and logs
-```
+## 4 Execution Harness (Control Against Churn)
+For any non-trivial work, use this workflow:
+Discover: Inspect repo state, locate the relevant files, and identify the authoritative commands.
+Analyze: Provide a root-cause narrative grounded in observed evidence (or static trace if runtime isn’t available).
+Troubleshoot (optional): Only if required to confirm the diagnosis; keep it minimal.
+Verify conditions: Confirm expected vs actual behavior using the smallest valid run.
+Summary: State what is wrong, why, and what must be true after the fix.
+Proposal (approval gate):
+Before editing, provide:
+- exact file list you will touch
+- exact commands you will run
+- exact evidence you expect to observe
+Then stop and wait for explicit approval.
+Implement:
+Apply only what was approved.
+Verify and evidence: Run only the agreed commands and capture outcomes.
+Document: Update CHANGE_LOG.md and/or SYSTEM_INVENTORY.md only when evidence supports the claim.
+Hard stop rule: If a fix attempt does not change the failure mode, stop and report. Do not iterate silently.
 
-### File Naming Conventions
-- **Python**: snake_case for files, functions, variables; PascalCase for classes
-- **TypeScript**: PascalCase for components; camelCase for functions, variables
-- **Scripts**: snake_case, descriptive names, idempotent operations
+## 5 Git Safety Rules
+Never run destructive git commands without explicit approval:
+- `git restore`
+- `git reset`
+- `git clean`
+- `git rebase`
+- history rewrites
+If rollback is requested, first determine whether changes are committed or uncommitted and propose the safest approach.
+If you suspect CHANGE_LOG.md contains an inaccurate entry:
+- do not edit history
+- append a corrective entry (see CHANGE_LOG rules below)
 
----
+## 6 CHANGE_LOG.md Rules (Formatting + Evidence)
+CHANGE_LOG.md is a human-readable record of noteworthy, completed work. Maintaining a changelog is a common best practice, but it only stays useful if it is factual and readable. :contentReference[oaicite:1]{index=1}
+Core rules:
+- Append-only: never rewrite or reorder existing entries.
+- Log after completion: do not pre-log planned work.
+- Factual, minimal, and evidence-backed: include the smallest evidence that proves the claim.
+- Prefer clarity over volume: log the outcome and verification, not a diary.
+Entry header format (required):
+`### YYYY-MM-DD HH:MM UTC - Short description`
+Entry body (required fields):
+- Scope: what area changed (backend/frontend/tests/docker/docs/etc.)
+- Change: what objectively changed (no hype, no “should”)
+- Evidence: commands run and outcomes, or precise static verification if runtime is not possible
+- Impact: what this enables/changes for users or contributors (1–2 sentences)
+Correction entries:
+- If correcting a prior entry, append a new entry with:
+  - what the prior entry claimed
+  - what is actually true
+  - evidence supporting the correction
+What to log:
+- Behavior changes (runtime or API semantics)
+- Validation semantics changes (test runner behavior, skip rules, gating rules)
+- Inventory promotions/demotions
+- Docker/compose changes that affect how the system runs
+- Authoritative documentation changes that alter “repo truth” (AGENTS.md, SYSTEM_INVENTORY.md, Project.md, CHANGE_ROADMAP.md)
+What not to log:
+- Pure formatting changes with no meaning change (unless required for clarity of authority)
+- Temporary experiments that are reverted before completion
+- Unverified claims, “it seems,” or “should work” statements
 
-## 2. Engineering Standards
+## 7 Validation and Testing Standards
+Dependency boundaries:
+- Unit tests must not require external dependencies (no network services, no local model services, no external binaries).
+- Integration tests must SKIP cleanly when dependencies are absent.
+- Never claim “pass” based on mocks when the real dependency is missing.
+Verification behavior:
+- Run the smallest relevant check first (single test file, targeted command).
+- Escalate only when needed or when the change is cross-cutting.
+- Report exactly what was run and the observed outcomes.
 
-### Code Quality
-- **Python**: PEP 8 compliance, mandatory type hints, no critical flake8/mypy errors
-- **TypeScript**: Strict typing, PascalCase components, camelCase functions
-- **KISS Principle**: Keep code simple and direct
-- **Separation of Concerns**: One responsibility per module, function, or class
-- **Technical-Debt Hygiene**: Deprecation warnings, obsolete APIs, and forward-incompatibility risks must be resolved opportunistically when encountered, with priority on correctness and minimal scope
+## 8 Authoritative Commands (Repo Root)
+Backend:
+- Authoritative backend validation:
+  - `./backend/.venv/Scripts/python scripts/validate_backend.py`
+- Unit tests:
+  - `./backend/.venv/Scripts/python -m pytest tests/`
+- Start backend (local):
+  - `./backend/.venv/Scripts/python backend/main.py`
+Frontend:
+- Start frontend (local):
+  - `pushd frontend && npm run dev`
+Notes:
+- Do not assume `make` is installed on Windows. If a Makefile exists, treat it as optional convenience, not the authoritative interface.
+- When verifying servers, start, confirm readiness via logs or a simple request, then stop unless instructed to keep it running.
 
-### Architecture Principles
-- **SOLID**: Single responsibility, open/closed, Liskov substitution, interface segregation, dependency inversion
-- **Dependency Injection**: Pass services explicitly to enable testability
-- **Idempotency**: Operations must be safe to re-run without side effects
-- **Deterministic Operations**: Prioritize repeatability and predictability
+## 9 Data and Artifact Conventions
+Runtime artifacts must not live in the repo root.
+Preferred location is `./data/` for persistent runtime artifacts such as:
+- SQLite DB
+- vector store files
+- checkpoints
+- caches and similar generated state
+Rules:
+- Do not introduce new storage locations without explicit agreement.
+- Ensure ignores cover generated artifacts (git + docker contexts) without being overly broad.
 
-### Security & Privacy
-- **Input Validation**: All external input validated via Pydantic schemas
-- **Local-First**: Process data locally when possible, minimize external dependencies
-- **PII Protection**: Automatic redaction of personally identifiable information
+## 10 Docker Conventions (Dev vs Hardened)
+This repo uses two compose tracks:
+- `docker-compose.dev.yml` (development runner)
+  - Fast iteration, relaxed posture
+  - Intended to be left running for ongoing development visibility
+- `docker-compose.yml` (hardened runner)
+  - Security posture and operational constraints
+Parity rule:
+- Dev and hardened should match core capabilities and wiring; posture differences only.
+- If they drift, propose the minimal changes needed to restore parity.
+Preferences:
+- SQLite-first for default persistence unless the repo explicitly documents otherwise.
+- Redis (if present) must degrade gracefully when unavailable and must not block startup.
 
-### Testing Standards
-- **No Pass-Throughs**: Tests must verify actual state transitions and side effects
-- **Honest Reporting**: Use SKIPPED for missing dependencies, never PASSED on mocks
-- **YAGNI Principle**: Add tests only for current functionality, avoid speculative coverage
+## 11 Documentation Discipline
+Documentation must not exceed SYSTEM_INVENTORY.md claims.
+Do not update docs “because it should be true.”
+Update docs only when behavior is evidenced and the document is an authoritative consumer of that claim.
 
----
-
-## 3. Operational Protocols
-
-### Command Suite
-Use these exact commands for consistent operations:
-- System Validation: `./backend/.venv/Scripts/python scripts/validate_backend.py`
-- Unit Tests: `./backend/.venv/Scripts/python -m pytest tests/`
-- Backend Start: `./backend/.venv/Scripts/python backend/main.py`
-- Frontend Start: `pushd frontend && npm run dev`
-
-### Environment Management
-- **Shell Assumption**: PowerShell 7 (pwsh.exe) on Windows 11; commands use forward slashes (/) for cross-shell compatibility where possible.
-- **Virtual Environment**: Always use `backend/.venv` for Python operations; activate with `backend/.venv/Scripts/activate`.
-- **Dependency Isolation**: Never install packages globally; all Python dependencies via venv pip.
-- **Path Consistency**: Use relative paths from project root; scripts invoked as `./backend/.venv/Scripts/python scripts/script_name.py`.
-- **Validation Entry Point**: Run `./backend/.venv/Scripts/python scripts/validate_backend.py` from repo root for authoritative testing.
-
-### Definition of Done
-A feature is complete when:
-1. Backend tests pass
-2. Frontend tests pass (zero failures)
-3. Linting shows no critical errors
-4. Documentation updated
-5. Validation script confirms functionality
-
-### Anti-Sprawl Rules
-- **Zero Redundancy**: Do not create duplicate scripts or functionality
-- **Single Source of Truth**: Use designated files for each purpose
-- **Script Simplicity**: Keep scripts focused on one task, avoid complexity
-
----
-
-## 4. System State Classification
-
-### Required States
-Every capability must be classified in exactly one state in `SYSTEM_INVENTORY.md`:
-- **Implemented and Locally Exercised**: Executed end-to-end in local runtime with test coverage
-- **Implemented but Not Exercised**: Code exists but not validated locally
-- **Requires External Dependency**: Code exists but needs external services/models/hardware
-
-### Promotion Rules
-- Capabilities promoted only through completed mini-phases
-- Update `SYSTEM_INVENTORY.md` immediately after promotion
-- One capability per mini-phase maximum
-- No promotion using mocks, stubs, or simulated responses for external dependencies
-- Granularity must match automated test coverage
-
-### Documentation Discipline
-- Documentation must not exceed inventory claims
-- Use precise language: "Implemented", "Locally Exercised", or "Requires External Dependency"
-- Inventory takes precedence over all other documentation
-
----
-
-## 5. Governance
-
-### Conflict Resolution
-When requests conflict with standards:
-1. Flag the specific trade-off
-2. Offer compliant alternative
-3. Wait for explicit confirmation before proceeding
-
-### Documentation First
-Update `Project.md` or `AGENTS.md` before implementing architectural changes.
-
-### Change Logging
-Maintain `CHANGE_LOG.md` with factual records of completed changes:
-- Append-only entries
-- Short, factual descriptions
-- Timestamp + change + evidence format
-- Log capability promotions and observable behavior changes only
-
----
-
-## 6. Mini-Phase Technique
-
-### Purpose
-Mini-phases control agent behavior and prevent scope creep through narrowly scoped instructions.
-
-### Core Rules
-- **Action-Only**: Execute only explicitly stated actions
-- **Single Purpose**: One goal per mini-phase
-- **No Implied Authority**: Forbidden actions must be stated
-- **Explicit Stop Condition**: Clear completion criteria
-
-### Format Requirements
-- Clear title describing intent
-- Paragraph-form instructions
-- Explicit prohibitions when needed
-- Integration with existing rules, not additions
-
-### Example
-**Mini-Phase: Promote Security Validator**
-
-Select the security validator from State 2 in `SYSTEM_INVENTORY.md`. Execute end-to-end tests for PII detection, SQL injection prevention, XSS protection, and input sanitization. Update inventory and change log upon successful test completion. Do not modify other files.
-
----
-
-## 7. Reference Material
-
-- [Project.md](Project.md) — Requirements and roadmap
-- [SYSTEM_INVENTORY.md](SYSTEM_INVENTORY.md) — Capability state authority
-- [CHANGE_LOG.md](CHANGE_LOG.md) — Historical change record
-- [.roo/rules/](.roo/rules/) — Source rule definitions
+## 12 Output Format
+When reporting back:
+- Summary (1–3 sentences)
+- Files inspected and/or touched
+- Commands executed and outcomes
+- Evidence excerpt(s) (minimal, copy/pasteable)
+- Proposal for next step (scoped), or stop if complete
