@@ -10,6 +10,8 @@ JARVISv3 evolves through incremental phases, each building upon the previous whi
 - **Backend Phases**: All completed (Phases 1-10, 12-14)
 - **Frontend Phases**: Personal Workflow Completion in progress
 
+*Note: Completed phases may contain capabilities that are "Requires External Dependency" (e.g., API keys) as defined in SYSTEM_INVENTORY.md.*
+
 ---
 
 ## Personal Workflow Completion (Parallel Track)
@@ -34,7 +36,7 @@ This roadmap evolves through verified needs and completed work. Changes are driv
 
 **Reordering Items**: Items are reordered based on priority changes or new dependencies discovered during development. Backend items generally precede frontend items.
 
-**Marking Complete**: Items are marked ✅ COMPLETED only after mini-phase completion with CHANGE_LOG.md entry and SYSTEM_INVENTORY.md promotion. Completion requires code/test evidence meeting all criteria.
+**Marking Complete**: Items are marked COMPLETED only after mini-phase completion with CHANGE_LOG.md entry and SYSTEM_INVENTORY.md promotion. Completion requires code/test evidence meeting all criteria.
 
 **Skipping Items**: Items may be marked REVERTED/SKIPPED with rationale if implementation proves unnecessary or problematic. This requires CHANGE_LOG.md documentation.
 

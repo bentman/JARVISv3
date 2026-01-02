@@ -142,7 +142,7 @@ Promotion between states occurs only through an explicit completed mini-phase an
 **External Services**
 - Search providers (DuckDuckGo, Bing, Google, Tavily)
 - Redis caching
-- PostgreSQL database support
+- SQLite database support
 
 **Hardware Dependencies**
 - GPU/NPU detection and utilization
@@ -153,7 +153,9 @@ Promotion between states occurs only through an explicit completed mini-phase an
 
 ---
 
-## Intentionally Skipped / Reverted Capabilities
+## Removed Capabilities (Historical)
+
+These capabilities were removed or reverted. This section serves as historical context, not active capability state.
 
 **Model Integrity Assurance** (REVERTED - Not Pursued)
 - SHA256 checksum-based model integrity verification for corruption detection
