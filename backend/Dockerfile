@@ -93,7 +93,7 @@ RUN mkdir -p /app /app/data /app/logs /models \
     && chown -R appuser:appuser /app /models
 
 # Copy project
-COPY --chown=appuser:appuser . .
+COPY --chown=appuser:appuser . /app/backend
 
 # Switch to non-root user
 USER appuser
@@ -107,4 +107,4 @@ LABEL com.jarvis.project="JARVISv3" \
 EXPOSE 8000
 
 # Run the application
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

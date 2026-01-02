@@ -506,13 +506,6 @@ capability state, or project rules. It is factual and append-only.
 
 ---
 
-### 2026-01-01 20:56 UTC — Normalized DATABASE_URL defaults to absolute container path form
-
-- Updated docker-compose.yml and docker-compose.dev.yml to use sqlite+aiosqlite:////app/data/JARVISv3.db (four slashes for absolute path) in all backend, celery-worker, celery-beat service DATABASE_URL defaults.
-- Evidence: File edits confirmed consistent SQLite paths across runners.
-
----
-
 ### 2026-01-01 20:52 UTC — SQLite-only persistence for hardened compose
 
 - Removed db service (postgres), postgres_data volume, POSTGRES_* env vars, and all depends_on db links from backend, celery-worker, celery-beat.
@@ -526,5 +519,27 @@ capability state, or project rules. It is factual and append-only.
 - Moved tests/unit/test_voice_service.py to tests/integration/test_voice_service.py to correct categorization.
 - Reason: Test exercises real voice service methods requiring external dependencies (Whisper/Piper executables/models), though skips cleanly when unavailable; belongs in integration testing.
 - Evidence: pytest tests/integration/test_voice_service.py passes with expected skip; validate_backend.py reports PASS_WITH_SKIPS for integration category.
+
+---
+
+### 2026-01-01 20:56 UTC — Normalized DATABASE_URL defaults to absolute container path form
+
+- Updated docker-compose.yml and docker-compose.dev.yml to use sqlite+aiosqlite:////app/data/JARVISv3.db (four slashes for absolute path) in all backend, celery-worker, celery-beat service DATABASE_URL defaults.
+- Evidence: File edits confirmed consistent SQLite paths across runners.
+
+---
+
+### 2026-01-01 21:16 UTC — Fixed dev backend import context for relative imports
+
+- Updated backend/Dockerfile.dev WORKDIR to /app (package root) and CMD to run backend.main:app (explicit module path).
+- Resolved ImportError on relative imports in main.py by establishing proper Python package context.
+- Evidence: docker-compose -f docker-compose.dev.yml up --build -d backend redis logs show "INFO: Uvicorn running on http://0.0.0.0:8000"; curl http://localhost:8000/health returns 200 healthy; ./data/JARVISv3.db persists SQLite data.
+
+---
+
+### 2026-01-01 21:16 UTC — Dev backend SQLite persistence evidence validated
+
+- Verified dev docker-compose backend-only startup with clean import context: no ImportError, stable Uvicorn server at localhost:8000, 200 health response, SQLite persistence to ./data/JARVISv3.db (3428352 bytes).
+- Evidence: docker-compose up --build -d backend redis succeeded; logs show startup complete; health endpoint healthy; data file persists across container lifecycle.
 
 ---

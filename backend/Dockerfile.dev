@@ -39,11 +39,11 @@ FROM python:3.11-slim as development
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV APP_HOME=/app
-ENV PYTHONPATH="${APP_HOME}/backend"
+ENV PYTHONPATH="${APP_HOME}"
 ENV LD_LIBRARY_PATH="/usr/local/lib:/opt/whisper/bin:/opt/whisper/lib:/opt/llama/lib:/opt/llama/bin:/opt/piper_build/pi/lib:/usr/local/bin:${LD_LIBRARY_PATH}"
 
-# Set work directory to backend directory (like prod)
-WORKDIR ${APP_HOME}/backend
+# Set work directory to app root (for package imports)
+WORKDIR ${APP_HOME}
 
 # Install system dependencies
 RUN apt-get update \
@@ -89,7 +89,7 @@ RUN pip install --no-cache-dir --upgrade pip \
 RUN mkdir -p /app /app/data /app/logs /models
 
 # Copy project (from backend context, like prod)
-COPY . .
+COPY . /app/backend
 
 # Image metadata labels
 LABEL com.jarvis.project="JARVISv3" \
@@ -100,4 +100,4 @@ LABEL com.jarvis.project="JARVISv3" \
 EXPOSE 8000
 
 # Run the application (dev runs as root from backend package)
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

@@ -28,6 +28,8 @@ services:
       - jarvis_data:/app/data
       - jarvis_logs:/app/logs
       - JARVISv3_media:/app/media
+      - jarvis_models:/app/models
+      - jarvis_checkpoints:/app/checkpoints
     depends_on:
       - redis
     networks:
@@ -86,10 +88,8 @@ services:
     image: nginx:alpine
     ports:
       - "${NGINX_PORT:-80}:80"
-      - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
       - frontend_build:/usr/share/nginx/html
     depends_on:
       - backend
@@ -98,75 +98,17 @@ services:
       - JARVISv3_network
     restart: unless-stopped
 
-  celery-worker:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    command: celery -A core.tasks worker --loglevel=info
-    environment:
-      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:////app/data/JARVISv3.db}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change_me_in_production}
-    volumes:
-      - ./backend:/app
-    depends_on:
-      - redis
-    networks:
-      - JARVISv3_network
-    restart: unless-stopped
 
-  celery-beat:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    command: celery -A core.tasks beat --loglevel=info
-    environment:
-      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:////app/data/JARVISv3.db}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change_me_in_production}
-    volumes:
-      - ./backend:/app
-    depends_on:
-      - redis
-    networks:
-      - JARVISv3_network
-    restart: unless-stopped
 
-  prometheus:
-    image: prom/prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    networks:
-      - JARVISv3_network
-    restart: unless-stopped
-
-  grafana:
-    image: grafana/grafana-enterprise
-    ports:
-      - "3001:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
-      - GF_USERS_ALLOW_SIGN_UP=false
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-    networks:
-      - JARVISv3_network
-    restart: unless-stopped
-    depends_on:
-      - prometheus
 
 volumes:
   redis_data:
   JARVISv3_media:
-  grafana_data:
   jarvis_data:
   jarvis_logs:
   frontend_build:
+  jarvis_models:
+  jarvis_checkpoints:
 
 networks:
   JARVISv3_network:
