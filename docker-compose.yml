@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -24,10 +22,13 @@ services:
       - PRIVACY_LEVEL=${PRIVACY_LEVEL:-medium}
       - MONTHLY_BUDGET_USD=${MONTHLY_BUDGET_USD:-100.0}
       - TOKEN_BUDGET_PER_WORKFLOW=${TOKEN_BUDGET_PER_WORKFLOW:-1000}
+      - HF_HOME=/app/data/.cache/huggingface
+      - TRANSFORMERS_CACHE=/app/data/.cache/huggingface/transformers
+      - SENTENCE_TRANSFORMERS_HOME=/app/data/.cache/sentence-transformers
     volumes:
       - jarvis_data:/app/data
       - jarvis_logs:/app/logs
-      - JARVISv3_media:/app/media
+      - jarvis_media:/app/media
       - jarvis_models:/app/models
       - jarvis_checkpoints:/app/checkpoints
     depends_on:
@@ -59,14 +60,19 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+      - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:8000}
     volumes:
-      - frontend_build:/frontend
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - backend
     networks:
       - JARVISv3_network
     restart: unless-stopped
-
 
   redis:
     image: redis:7-alpine
@@ -98,12 +104,9 @@ services:
       - JARVISv3_network
     restart: unless-stopped
 
-
-
-
 volumes:
   redis_data:
-  JARVISv3_media:
+  jarvis_media:
   jarvis_data:
   jarvis_logs:
   frontend_build:
