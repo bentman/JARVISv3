@@ -561,3 +561,15 @@ capability state, or project rules. It is factual and append-only.
 - Normalized `.env.example` to use canonical SQLite `DATABASE_URL` format.
 - Verified backend code stability via unit tests (database, core_services) and full validation suite (PASS_WITH_SKIPS).
 - Evidence: `scripts/validate_backend.py` output in `reports/backend_validation_report_20260102_073705.txt`.
+---
+
+### 2026-01-02 13:30 UTC — Aligned docker.dev<->docker (hardend for prod)
+
+- Aligned docker environments, volumes, networks, redis, nginx, etc for development improvements
+- Evidence: 
+    Executed `docker compose -f docker-compose.dev.yml up --build -d backend redis`
+    Executed `docker compose -f docker-compose.dev.yml exec backend sh -lc 'ls -la /app/data && echo "$HF_HOME"'`
+    Executed `docker compose -f docker-compose.dev.yml down`
+    Executed `docker compose -f docker-compose.yml up --build -d backend redis`
+    Executed `docker compose -f docker-compose.yml exec backend sh -lc 'ls -la /app/data && echo "$HF_HOME"'`
+    Executed `docker compose -f docker-compose.yml down`
