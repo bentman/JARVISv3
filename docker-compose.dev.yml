@@ -26,11 +26,11 @@ services:
       - TRANSFORMERS_CACHE=/app/data/.cache/huggingface/transformers
       - SENTENCE_TRANSFORMERS_HOME=/app/data/.cache/sentence-transformers
     volumes:
-      - jarvis_data:/app/data
-      - jarvis_logs:/app/logs
-      - jarvis_media:/app/media
-      - jarvis_models:/app/models
-      - jarvis_checkpoints:/app/checkpoints
+      - jarvis_data:/app/data-dev
+      - jarvis_logs:/app/logs-dev
+      - jarvis_media:/app/media-dev
+      - jarvis_models:/app/models-dev
+      - jarvis_checkpoints:/app/checkpoints-dev
     depends_on:
       - redis
     networks:
@@ -56,6 +56,22 @@ services:
     tmpfs:
       - /tmp
 
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly no
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data-dev
+    networks:
+      - JARVISv3_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   frontend:
     build:
       context: ./frontend
@@ -66,29 +82,13 @@ services:
       - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
       - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:8000}
     volumes:
-      - ./frontend:/app
+      - ./frontend:/app-dev
       - /app/node_modules
     depends_on:
       - backend
     networks:
       - JARVISv3_network
     restart: unless-stopped
-
-  redis:
-    image: redis:7-alpine
-    command: redis-server --appendonly no
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - JARVISv3_network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   nginx:
     image: nginx:alpine
@@ -105,13 +105,13 @@ services:
     restart: unless-stopped
 
 volumes:
-  redis_data:
   jarvis_media:
   jarvis_data:
   jarvis_logs:
-  frontend_build:
   jarvis_models:
   jarvis_checkpoints:
+  redis_data:
+  frontend_build:
 
 networks:
   JARVISv3_network:

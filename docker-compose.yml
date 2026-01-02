@@ -56,6 +56,22 @@ services:
     tmpfs:
       - /tmp
 
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - JARVISv3_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   frontend:
     build:
       context: ./frontend
@@ -74,22 +90,6 @@ services:
       - JARVISv3_network
     restart: unless-stopped
 
-  redis:
-    image: redis:7-alpine
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - JARVISv3_network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
   nginx:
     image: nginx:alpine
     ports:
@@ -105,13 +105,13 @@ services:
     restart: unless-stopped
 
 volumes:
-  redis_data:
   jarvis_media:
   jarvis_data:
   jarvis_logs:
-  frontend_build:
   jarvis_models:
   jarvis_checkpoints:
+  redis_data:
+  frontend_build:
 
 networks:
   JARVISv3_network:
