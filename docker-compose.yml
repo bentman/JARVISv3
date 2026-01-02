@@ -13,7 +13,7 @@ services:
       com.jarvis.service: "backend"
       com.jarvis.variant: "prod"
     environment:
-      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:///./JARVISv3.db}
+      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:////app/data/JARVISv3.db}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
@@ -29,7 +29,6 @@ services:
       - jarvis_logs:/app/logs
       - JARVISv3_media:/app/media
     depends_on:
-      - db
       - redis
     networks:
       - JARVISv3_network
@@ -66,26 +65,6 @@ services:
       - JARVISv3_network
     restart: unless-stopped
 
-  db:
-    image: postgres:15-alpine
-    environment:
-      - POSTGRES_DB=JARVISv3
-      - POSTGRES_USER=JARVISv3
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-JARVISv3_secure_password}
-      - PGDATA=/var/lib/postgresql/data/pgdata
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-db:/docker-entrypoint-initdb.d
-    networks:
-      - JARVISv3_network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U JARVISv3 -d JARVISv3"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   redis:
     image: redis:7-alpine
@@ -125,7 +104,7 @@ services:
       dockerfile: Dockerfile
     command: celery -A core.tasks worker --loglevel=info
     environment:
-      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:///./JARVISv3.db}
+      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:////app/data/JARVISv3.db}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
@@ -133,7 +112,6 @@ services:
     volumes:
       - ./backend:/app
     depends_on:
-      - db
       - redis
     networks:
       - JARVISv3_network
@@ -145,13 +123,12 @@ services:
       dockerfile: Dockerfile
     command: celery -A core.tasks beat --loglevel=info
     environment:
-      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:///./JARVISv3.db}
+      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:////app/data/JARVISv3.db}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change_me_in_production}
     volumes:
       - ./backend:/app
     depends_on:
-      - db
       - redis
     networks:
       - JARVISv3_network
@@ -184,7 +161,6 @@ services:
       - prometheus
 
 volumes:
-  postgres_data:
   redis_data:
   JARVISv3_media:
   grafana_data:

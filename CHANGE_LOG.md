@@ -506,6 +506,21 @@ capability state, or project rules. It is factual and append-only.
 
 ---
 
+### 2026-01-01 20:56 UTC — Normalized DATABASE_URL defaults to absolute container path form
+
+- Updated docker-compose.yml and docker-compose.dev.yml to use sqlite+aiosqlite:////app/data/JARVISv3.db (four slashes for absolute path) in all backend, celery-worker, celery-beat service DATABASE_URL defaults.
+- Evidence: File edits confirmed consistent SQLite paths across runners.
+
+---
+
+### 2026-01-01 20:52 UTC — SQLite-only persistence for hardened compose
+
+- Removed db service (postgres), postgres_data volume, POSTGRES_* env vars, and all depends_on db links from backend, celery-worker, celery-beat.
+- Updated DATABASE_URL defaults to sqlite+aiosqlite:///app/data/JARVISv3.db for backend, celery-worker, celery-beat (no repo-root default).
+- Evidence: docker-compose.yml re-read confirms zero Postgres references, backend persistent mount at /app/data via jarvis_data volume, DATABASE_URL resolves to SQLite at /app/data/JARVISv3.db.
+
+---
+
 ### 2026-01-01 20:52 UTC — Recategorized voice service test from unit to integration
 
 - Moved tests/unit/test_voice_service.py to tests/integration/test_voice_service.py to correct categorization.

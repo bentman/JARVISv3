@@ -13,7 +13,7 @@ services:
       com.jarvis.service: "backend"
       com.jarvis.variant: "dev"
     environment:
-      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:///./JARVISv3.db}
+      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:////app/data/JARVISv3.db}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
