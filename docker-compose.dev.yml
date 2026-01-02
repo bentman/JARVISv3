@@ -26,11 +26,11 @@ services:
       - TRANSFORMERS_CACHE=/app/data/.cache/huggingface/transformers
       - SENTENCE_TRANSFORMERS_HOME=/app/data/.cache/sentence-transformers
     volumes:
-      - jarvis_data:/app/data-dev
-      - jarvis_logs:/app/logs-dev
-      - jarvis_media:/app/media-dev
-      - jarvis_models:/app/models-dev
-      - jarvis_checkpoints:/app/checkpoints-dev
+      - jarvis_data:/app/data
+      - jarvis_logs:/app/logs
+      - jarvis_media:/app/media
+      - jarvis_models:/app/models
+      - jarvis_checkpoints:/app/checkpoints
     depends_on:
       - redis
     networks:
@@ -62,7 +62,7 @@ services:
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
-      - redis_data:/data-dev
+      - redis_data:/data
     networks:
       - JARVISv3_network
     restart: unless-stopped
@@ -82,7 +82,7 @@ services:
       - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
       - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:8000}
     volumes:
-      - ./frontend:/app-dev
+      - ./frontend:/app
       - /app/node_modules
     depends_on:
       - backend
