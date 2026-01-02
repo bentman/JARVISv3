@@ -543,3 +543,21 @@ capability state, or project rules. It is factual and append-only.
 - Evidence: docker-compose up --build -d backend redis succeeded; logs show startup complete; health endpoint healthy; data file persists across container lifecycle.
 
 ---
+
+### 2026-01-02 07:45 UTC — Documentation status language normalized
+
+- Removed emoji status markers (✅, ⚠️) from `Project.md` and `CHANGE_ROADMAP.md` in favor of plain text.
+- Standardized all capability status descriptions to match `SYSTEM_INVENTORY.md` canonical states (Implemented and Locally Exercised, Implemented but Not Exercised, Requires External Dependency).
+- Explicitly separated "Phase Completion" in roadmap from "Locally Exercised" runtime status.
+- Moved "Reverted" items in `SYSTEM_INVENTORY.md` to a "Removed Capabilities (Historical)" section to prevent state ambiguity.
+- Evidence: Static verification of `Project.md`, `CHANGE_ROADMAP.md`, and `SYSTEM_INVENTORY.md` content alignment.
+
+---
+
+### 2026-01-02 07:37 UTC — SQLite-only enforcement and Postgres removal completed
+
+- Removed all Postgres dependencies (`psycopg2-binary`, `postgresql-client`, `libpq-dev`) from `backend/requirements.txt`, `backend/Dockerfile`, and `backend/Dockerfile.dev`.
+- Updated `backend/core/database.py` to remove legacy Postgres support logic (HAS_POSTGRES toggle) while maintaining `aiosqlite` implementation.
+- Normalized `.env.example` to use canonical SQLite `DATABASE_URL` format.
+- Verified backend code stability via unit tests (database, core_services) and full validation suite (PASS_WITH_SKIPS).
+- Evidence: `scripts/validate_backend.py` output in `reports/backend_validation_report_20260102_073705.txt`.

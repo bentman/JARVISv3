@@ -20,15 +20,10 @@ logger = logging.getLogger(__name__)
 # Database configuration
 DB_PATH = settings.DATABASE_URL.replace("sqlite+aiosqlite:///", "").replace("sqlite:///", "")
 
-# For production PostgreSQL support, we'll implement both SQLite (dev) and PostgreSQL (prod) backends
 try:
-    import asyncpg
-    from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-    from sqlalchemy.orm import sessionmaker
     from sqlalchemy import text
-    HAS_POSTGRES = True
 except ImportError:
-    HAS_POSTGRES = False
+    pass
 
 try:
     import redis.asyncio as redis
