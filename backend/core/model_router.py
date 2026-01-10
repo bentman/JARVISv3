@@ -77,11 +77,13 @@ class ModelRouter:
             if any(task_type in models.get(p, {}) for p in models):
                 candidate_providers.append(name)
 
-        # 1. Prefer Ollama if it has models for this task
+        # 1. Prefer Ollama if it has models for this task and is available
         if "ollama" in candidate_providers:
-            ollama_models = self.providers["ollama"].get_supported_models()
-            if profile in ollama_models and task_type in ollama_models[profile]:
-                return ollama_models[profile][task_type], "ollama", None
+            ollama_provider = self.providers["ollama"]
+            if await ollama_provider.is_available():
+                ollama_models = ollama_provider.get_supported_models()
+                if profile in ollama_models and task_type in ollama_models[profile]:
+                    return ollama_models[profile][task_type], "ollama", None
 
         # 2. Fallback to llama_cpp
         if "llama_cpp" in candidate_providers:

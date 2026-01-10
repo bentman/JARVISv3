@@ -27,6 +27,7 @@ class LlamaCppProvider(ModelProvider):
     def _find_llama_cpp(self) -> str:
         """Find the llama.cpp executable"""
         possible_paths = [
+            "./llama-cli-extracted/llama-cli.exe",
             "./llama.cpp/main",
             "./backend/llama.cpp/main",
             "llama-cli",
@@ -72,8 +73,7 @@ class LlamaCppProvider(ModelProvider):
                 "-p", prompt,
                 "-n", str(max_tokens),
                 "--temp", str(kwargs.get("temperature", 0.7)),
-                "--repeat-penalty", "1.1",
-                "-no-cnv"
+                "--repeat-penalty", "1.1"
             ]
 
             process = await asyncio.create_subprocess_exec(
@@ -121,8 +121,7 @@ class LlamaCppProvider(ModelProvider):
                 "-p", prompt,
                 "-n", str(max_tokens),
                 "--temp", str(kwargs.get("temperature", 0.7)),
-                "--repeat-penalty", "1.1",
-                "-no-cnv"
+                "--repeat-penalty", "1.1"
             ]
 
             process = await asyncio.create_subprocess_exec(

@@ -9,36 +9,24 @@ A personal AI assistant that runs on my hardware (Desktop + Laptop), handles my 
 - **Task-Specific Brains**: Uses different LLMs for different tasks (e.g., small fast models for chat, larger capable models for code).
 - **No Friction**: Starting it should be one command. Using it should be one hotkey.
 
-## Daily Workflow Capabilities
+## Core Capabilities
 
-| Capability | Status | Description |
-| :--- | :--- | :--- |
-| **Voice Interface** | Requires External Dependency | Wake word (Jarvis), STT, and TTS. Requires external voice models. |
-| **Code Assistant** | Implemented but Not Exercised | Specialized node for code review and refactoring. Requires external LLM. |
-| **Research Node** | Implemented but Not Exercised | Aggregated search (DDG/Bing) with local memory context. Requires external search APIs. |
-| **Context Memory** | Implemented and Locally Exercised | Remembers what we talked about via local FAISS store. |
-| **Hardware Routing**| Requires External Dependency | Detects GPU (NVIDIA/AMD/Intel) or CPU-only and picks the right model. Requires actual hardware. |
-| **Conversation API**| Implemented and Locally Exercised | Full history management via API. |
-| **Desktop Wrapper** | Implemented but Not Exercised | Tauri-based window with system shortcuts. |
+| Capability | Description |
+| :--- | :--- |
+| **Voice Interface** | Wake word (Jarvis), STT, and TTS pipeline. |
+| **Code Assistant** | Specialized workflows for code review and refactoring. |
+| **Research Node** | Aggregated search (DDG/Bing) with local memory context. |
+| **Context Memory** | Remembers conversation history via local FAISS store. |
+| **Hardware Routing**| Detects GPU/NPU availability and routes to optimal models. |
+| **Conversation API**| Full history management and retrieval. |
+| **Web Client** | React 18+ interface for browser access. |
+| **Desktop Wrapper** | Tauri integration for system-level shortcuts. |
 
-## Development Status: All Backend Roadmap Phases Completed
+*For current implementation status, see [SYSTEM_INVENTORY.md](./SYSTEM_INVENTORY.md).*
 
-All backend roadmap phases 1-10 and 12-14 have been completed and validated through comprehensive testing (Phase 11 reverted due to incomplete implementation). Status indicators below reflect completion of development phases. Individual capability readiness is defined in `SYSTEM_INVENTORY.md`.
+## System Architecture
 
-- **Backend Infrastructure**: 112 tests passing across Unit, Integration, and Agentic categories (Completed)
-- **Workflow Architecture**: Agentic graph with dynamic planning, checkpoints, and state management (Completed)
-- **Context Management**: Typed, versioned context with lifecycle, validation, and lineage tracking (Completed)
-- **Hardware Optimization**: Resource-aware execution with dynamic memory management and graceful degradation (Completed)
-- **Human-AI Collaboration**: Approval nodes integrated into workflows with configurable criteria (Completed)
-- **Observability**: Comprehensive metrics, tracing, health monitoring, and circuit breaker patterns (Completed)
-- **Security & Privacy**: Multi-layer validation, PII redaction, and audit trails (Completed)
-- **Workflow Composability**: Template-based composition system with reusable workflow patterns (Completed)
-- **Production Readiness**: Full test coverage, error handling, and deployment optimization (Completed)
-- **Embedding Reliability Enhancement**: Feature hashing fallback for offline semantic search (Completed)
-
-See CHANGE_LOG.md for detailed implementation history and CHANGE_ROADMAP.md for the complete development plan.
-
-## Technical "Under the Hood"
+JARVISv3 implements the "Unified Golden Stack" with a focus on defense-in-depth and observable execution.
 
 ### Workflow Architecture
 JARVISv3 uses a **Workflow Graph** architecture. Instead of a simple chat loop, it breaks tasks down into specific steps (nodes) like searching the web, checking your local memory, or reviewing code.
@@ -67,7 +55,7 @@ This setup makes the assistant more reliable because:
 #### Built-in Workflows
 1. **Chat Workflow**: The default path for general questions. It pulls context from your memory and generates a response with local models.
 2. **Research Workflow**: Uses the `search_web` node to dig through multiple sources and the `validator` node to ensure the summary is accurate.
-3. **Code Assistant**: Optimized for `coding` tasks. Uses specialized models (like Qwen2.5-Coder) and can audit local files without sending them to the cloud.
+3. **Code Assistant**: Optimized for `coding` tasks. Uses specialized models and can audit local files without sending them to the cloud.
 4. **Voice Session**: A high-performance path for hands-free use. It coordinates the STT, Chat Workflow, and TTS in one smooth loop.
 
 - **The Graph**: Tasks are DAGs. Reliability comes from retries and checkpoints.
@@ -76,25 +64,12 @@ This setup makes the assistant more reliable because:
 - **Privacy**: Local-first isn't a feature; it's the architecture. PII is redacted before anything hits a web-search provider.
 
 ## Verification Pillar
-System functionality is verified periodically via `scripts/validate_backend.py`, the authoritative backend validation tool. Deprecation warnings are explicitly surfaced during validation runs, reported separately from test failures, with expectation of zero warnings as ongoing maintenance. Report retention is automated (older than 7 days removed) to prevent accumulation while maintaining recent validation history. `scripts/validate_backend.py` remains the primary source of truth for backend validation.
-- **Backend**: Core functionality validated through comprehensive, dynamically discovered test suite with per-test visibility. (Maintenance: Ongoing - Deprecations removed opportunistically).
-- **Frontend**: Vitest suites for UI components.
+System functionality is verified periodically via `scripts/validate_backend.py`, the authoritative backend validation tool. `scripts/validate_backend.py` remains the primary source of truth for backend validation.
+
+- **Backend**: Core functionality validated through comprehensive, dynamically discovered test suite with per-test visibility.
+- **Web Client**: Vitest suites for UI components.
 - **Intelligence**: E2E smoke tests for real model inference.
 
-## Development Roadmap
-
-See CHANGE_ROADMAP.md for the complete, sequenced development plan. All backend roadmap phases 1-10 and 12-14 have been completed and validated (Phase 11 reverted):
-
-- **Phase 1-2**: Foundation (Workflow Architecture, Agent Registry) (Completed)
-- **Phase 3-4**: Context Management (Code-Driven Context, Layered Context Model) (Completed)
-- **Phase 5**: Operational Trustworthiness (Validation, Observability, Security) (Completed)
-- **Phase 6**: Contextual Intelligence (Active Memory, Context Evolution) (Completed)
-- **Phase 7**: Workflow Composability (Template System, Instant Composition) (Completed)
-- **Phase 8**: Resource-Aware Execution (Dynamic Memory, Hardware Optimization) (Completed)
-- **Phase 9**: Human-AI Collaboration (Approval Nodes, Decision Boundaries) (Completed)
-- **Phase 10**: Embedding Reliability Enhancement (Feature Hashing Fallback) (Completed)
-- **Phase 12**: Development Experience Optimization (Script consolidation, command suite) (Completed)
-- **Phase 13**: Privacy Lifecycle Management (Data retention policies, cleanup) (Completed)
-- **Phase 14**: Production Readiness Validation (Test coverage, deprecation hygiene) (Completed)
-
-The roadmap provides explicit completion criteria, dependencies, and success metrics for each development phase. See CHANGE_LOG.md for implementation details and validation results.
+---
+*For development history, see [CHANGE_LOG.md](./CHANGE_LOG.md).*
+*For future plans, see [CHANGE_ROADMAP.md](./CHANGE_ROADMAP.md).*

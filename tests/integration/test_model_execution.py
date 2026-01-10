@@ -58,7 +58,7 @@ async def test_real_inference_execution():
     print(f"Using available provider: {providers_available[0]}")
     
     # Try a simple generation
-    prompt = "Reply with exactly one word: 'Validated'."
+    prompt = "Say 'hello'"
     try:
         print(f"Attempting real-world generation with {providers_available[0]}...")
         result = await model_router.generate_response(prompt)

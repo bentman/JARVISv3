@@ -49,7 +49,7 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - Authentication and permission systems
 - Privacy level controls
 
-**Frontend**
+**Web Client (React)**
 - React 18 + TypeScript application
 - UI components (BudgetSummary, HardwareIndicator, SettingsModal, VoiceRecorder, WorkflowVisualizer)
 - API service integration
@@ -57,7 +57,8 @@ Promotion between states occurs only through an explicit completed mini-phase an
 **AI Workflows**
 - ChatWorkflow node graph
 - Research workflow
-- Development workflow
+- Development workflow (Code Assistant)
+- Voice workflow integration (nodes and context)
 - Agent registry and collaboration
 - Search node functionality
 
@@ -102,6 +103,10 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - Optimized model configurations based on detected hardware capabilities
 - Cross-platform deployment optimization for CPU, GPU, and NPU environments
 
+**Hardware Routing**
+- CPU/GPU/NPU environment detection and tier classification (cpu/cloud verified)
+- Dynamic model selection strategy based on available hardware resources
+
 **Human-AI Collaboration**
 - Approval nodes integrated into high-stakes workflows with workflow pausing/resuming
 - Risk-based approval criteria evaluation (high-stakes operations always require approval)
@@ -116,20 +121,6 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - Enhanced vector store with embedding strategy metadata and fallback search capability
 - Seamless embedding strategy switching while maintaining search quality and reliability
 
----
-
-## State 3: Requires External Dependency
-
-**AI Model Execution**
-- llama.cpp provider (models and binaries required)
-- Cloud LLM providers (API keys required)
-- Model downloads from Hugging Face (network required)
-
-**Voice Model Execution**
-- Whisper STT models
-- Piper TTS models
-- Audio processing dependencies
-
 **Voice Wake Word Detection**
 - Requires openwakeword library and tflite runtime.
 
@@ -139,14 +130,34 @@ Promotion between states occurs only through an explicit completed mini-phase an
 **Voice Text-to-Speech (TTS)**
 - Requires Piper executable and voice models.
 
+---
+
+## State 2: Implemented but Not Exercised
+
+**Desktop Wrapper (Tauri)**
+- Tauri configuration and build setup
+- System tray and global shortcut integration points
+
+## State 3: Requires External Dependency
+
+**AI Model Execution**
+- llama.cpp provider with local GGUF model execution
+- Cloud LLM providers (API keys required)
+- Model downloads from Hugging Face (network required)
+- Local inference validated end-to-end
+
+**Voice Model Execution (Legacy)**
+- Whisper STT models
+- Piper TTS models
+- Audio processing dependencies
+
 **External Services**
 - Search providers (DuckDuckGo, Bing, Google, Tavily)
 - Redis caching
 - SQLite database support
 
-**Hardware Dependencies**
-- GPU/NPU detection and utilization
-- Advanced hardware profiling
+**Hardware Dependencies (Advanced)**
+- Advanced hardware profiling (deep inspection beyond tier detection)
 
 **Infrastructure**
 - Docker deployment configurations

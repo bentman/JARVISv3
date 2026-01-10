@@ -15,6 +15,7 @@ from huggingface_hub.utils import RepositoryNotFoundError, GatedRepoError
 
 from ..ai.context.schemas import HardwareState, ModelProfile
 from .hardware import HardwareService
+from .config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -23,16 +24,19 @@ class ModelManager:
     Manages model downloading, verification, and selection based on hardware capabilities.
     """
     
-    def __init__(self, models_dir: str = "models"):
-        # Go up one level if we are in backend/core
-        if Path.cwd().name == "core":
-            self.models_dir = Path.cwd().parent.parent / models_dir
-        elif Path.cwd().name == "backend":
-            self.models_dir = Path.cwd().parent / models_dir
-        else:
-            self.models_dir = Path(models_dir)
+    def __init__(self, models_dir: Optional[str] = None):
+        # Use settings if not provided
+        target_dir = models_dir or settings.MODEL_PATH or "models"
+        self.models_dir = Path(target_dir)
             
-        self.models_dir.mkdir(exist_ok=True, parents=True)
+        # Try to create directory, but ignore if read-only (likely mounted)
+        try:
+            self.models_dir.mkdir(exist_ok=True, parents=True)
+        except OSError as e:
+            if "Read-only file system" not in str(e):
+                raise
+            logger.info(f"Models directory {self.models_dir} is read-only, skipping creation")
+
         self.hardware_service = HardwareService()
         self.verification_cache = {}
         self.download_locks = {}
@@ -42,7 +46,7 @@ class ModelManager:
             "light": {
                 "model_id": "bartowski/Llama-3.2-1B-Instruct-GGUF",
                 "filename": "Llama-3.2-1B-Instruct-Q4_K_M.gguf",
-                "expected_checksum": "placeholder_checksum_light",
+                "expected_checksum": "6F85A640A97CF2BF5B8E764087B1E83DA0FDB51D7C9FAB7D0FECE9385611DF83",
                 "size_mb": 700,
                 "description": "Llama 3.2 1B parameter model for light hardware"
             },
@@ -70,14 +74,14 @@ class ModelManager:
             "stt-base": {
                 "model_id": "ggerganov/whisper.cpp",
                 "filename": "ggml-base.en.bin",
-                "expected_checksum": "placeholder_checksum_stt",
+                "expected_checksum": "A03779C86DF3323075F5E796CB2CE5029F00EC8869EEE3FDFB897AFE36C6D002",
                 "size_mb": 150,
                 "description": "Whisper base.en model for STT"
             },
             "tts-medium": {
                 "model_id": "rhasspy/piper-voices",
                 "filename": "en/en_US/lessac/medium/en_US-lessac-medium.onnx",
-                "expected_checksum": "placeholder_checksum_tts",
+                "expected_checksum": "5EFE09E69902187827AF646E1A6E9D269DEE769F9877D17B16B1B46EEAAF019F",
                 "size_mb": 50,
                 "description": "Piper en_US-lessac-medium voice model"
             },
@@ -242,3 +246,4 @@ class ModelManager:
 
 # Global instance
 model_manager = ModelManager()
+# Global instance

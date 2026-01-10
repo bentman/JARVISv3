@@ -25,11 +25,13 @@ services:
       - HF_HOME=/app/data/.cache/huggingface
       - TRANSFORMERS_CACHE=/app/data/.cache/huggingface/transformers
       - SENTENCE_TRANSFORMERS_HOME=/app/data/.cache/sentence-transformers
+      - MODEL_PATH=/models
+      - LD_LIBRARY_PATH=/usr/local/lib:/opt/whisper/bin:/opt/whisper/lib:/opt/whisper/src:/opt/llama/lib:/opt/llama/bin:/opt/piper_build/pi/lib:/usr/local/bin
     volumes:
       - jarvis_data:/app/data
       - jarvis_logs:/app/logs
       - jarvis_media:/app/media
-      - jarvis_models:/app/models
+      - ./models:/models:ro
       - jarvis_checkpoints:/app/checkpoints
     depends_on:
       - redis

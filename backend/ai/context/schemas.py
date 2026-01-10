@@ -104,6 +104,7 @@ class TaskType(str, Enum):
     RESEARCH = "research"
     AUTOMATION = "automation"
     ANALYSIS = "analysis"
+    VOICE = "voice"
 
 
 class UserIntent(BaseModel):
@@ -173,6 +174,15 @@ class ToolContext(BaseModel):
         })
 
 
+class VoiceContext(BaseModel):
+    """Context for voice interactions"""
+    audio_input: Optional[bytes] = None  # Raw input audio
+    audio_output: Optional[bytes] = None # Generated output audio
+    transcription: Optional[str] = None
+    voice_id: Optional[str] = "default"
+    metadata: Dict[str, Any] = {}
+
+
 class NodeContext(BaseModel):
     """Context for a specific workflow node"""
     node_id: str
@@ -199,6 +209,7 @@ class TaskContext(BaseModel):
     workflow_context: WorkflowContext
     node_context: Optional[NodeContext] = None
     tool_context: Optional[ToolContext] = None
+    voice_context: Optional[VoiceContext] = None
     additional_context: Dict[str, Any] = {}
     
     def update_tokens_consumed(self, tokens: int):

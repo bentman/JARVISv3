@@ -239,6 +239,24 @@ checkpoints/
 *.onnx
 *.pt
 *.pth
+*.safetensors
+models/.cache/
+models/__pycache__/
+
+# Log files
+*.log
+frontend.log
+main.log
+
+# Error files
+*.err
+*.error
+frontend.err
+
+# Backup files
+*.bak
+*.backup
+*.tmp
 
 # Node.js
 node_modules/
