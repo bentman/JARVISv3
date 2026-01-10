@@ -3,6 +3,8 @@
 ## Vision
 A personal AI assistant that runs on my hardware (Desktop + Laptop), handles my daily workflows (code, research, notes), and stays completely offline whenever possible. It's not a chatbot; it's a set of specialized agents that actually get things done.
 
+*Note: This document represents the complete vision for JARVISv3. Current implementation progress is tracked in [SYSTEM_INVENTORY.md](./SYSTEM_INVENTORY.md).*
+
 ### Core Philosophy
 - **Runs on My Hardware**: Optimized for my Desktop (x86_64 + NVIDIA GPU) and my Laptop (ARM + NPU).
 - **Offline-First**: Default to local models. Internet is only for explicit web searches.
@@ -23,6 +25,16 @@ A personal AI assistant that runs on my hardware (Desktop + Laptop), handles my 
 | **Desktop Wrapper** | Tauri integration for system-level shortcuts. |
 
 *For current implementation status, see [SYSTEM_INVENTORY.md](./SYSTEM_INVENTORY.md).*
+
+### Vision vs. Reality
+
+This document represents the **complete vision** for JARVISv3. The current implementation status is tracked separately in [SYSTEM_INVENTORY.md](./SYSTEM_INVENTORY.md).
+
+**What's Working Now**: Backend infrastructure, workflow engine, core services, web client, and foundational AI workflows.
+
+**What's in Progress**: Voice interface, research capabilities, and desktop integration require additional setup or external dependencies.
+
+**What's Next**: Full end-to-end functionality with local model execution and seamless hardware integration.
 
 ## System Architecture
 
