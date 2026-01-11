@@ -671,3 +671,11 @@ capability state, or project rules. It is factual and append-only.
 - Project.md Vision vs. Reality section updated to reflect accurate capability states.
 
 - Evidence: Static verification of Project.md content alignment with SYSTEM_INVENTORY.md states.
+
+---
+
+### 2026-01-11 02:45 UTC — Tauri desktop wrapper exercised locally on Windows
+
+- Desktop wrapper (Tauri) successfully exercised locally on Windows with `cd frontend && npm run tauri dev`.
+- Evidence: `Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.17s` + `Info Watching E:\WORK\CODE\GitHub\bentman\Repositories\JARVISv3\frontend\src-tauri for changes...`.
+- Repo anchor: main branch, HEAD cf13e3cfcdc574104a205dc960ce3593643ffc42.

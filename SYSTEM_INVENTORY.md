@@ -54,6 +54,11 @@ Promotion between states occurs only through an explicit completed mini-phase an
 - UI components (BudgetSummary, HardwareIndicator, SettingsModal, VoiceRecorder, WorkflowVisualizer)
 - API service integration
 
+**Desktop Wrapper (Tauri)**
+- Tauri configuration and build setup
+- System tray and global shortcut integration points
+- Verified local exercise on Windows with `cd frontend && npm run tauri dev`, 2026-01-11 UTC, HEAD cf13e3cf
+
 **AI Workflows**
 - ChatWorkflow node graph
 - Research workflow
@@ -133,10 +138,6 @@ Promotion between states occurs only through an explicit completed mini-phase an
 ---
 
 ## State 2: Implemented but Not Exercised
-
-**Desktop Wrapper (Tauri)**
-- Tauri configuration and build setup
-- System tray and global shortcut integration points
 
 ## State 3: Requires External Dependency
 
