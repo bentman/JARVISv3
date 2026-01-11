@@ -20,9 +20,9 @@ JARVISv3 evolves through incremental phases, each building upon the previous whi
 
 **Completion Criteria**:
 - System tray integration and global hotkeys
-- Cross-device conversation synchronization
-- Degraded mode indicators for offline operation
-- Voice-first UI refinements
+- Cross-device conversation synchronization **[COMPLETE]** - See SYSTEM_INVENTORY.md - conversation management and distributed nodes are State 1
+- Degraded mode indicators for offline operation **[COMPLETE]** - See SYSTEM_INVENTORY.md - hardware routing and resource-aware execution are State 1
+- Voice-first UI refinements **[BLOCKED: Requires Whisper executable/models, Piper executable/models, openwakeword library]**
 
 **Dependencies**: Phase 5+ (requires operational stability)
 
