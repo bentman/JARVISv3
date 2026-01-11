@@ -32,7 +32,7 @@ This document represents the **complete vision** for JARVISv3. The current imple
 
 **What's Working Now**: Backend infrastructure, workflow engine, core services, web client, and foundational AI workflows.
 
-**What's in Progress**: Voice interface, research capabilities, and desktop integration require additional setup or external dependencies.
+**What's in Progress**: Voice interface and desktop integration requires local testing.
 
 **What's Next**: Full end-to-end functionality with local model execution and seamless hardware integration.
 

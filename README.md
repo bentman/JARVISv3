@@ -41,6 +41,52 @@ Run natively for best performance and NPU access:
 
 ---
 
+## 📦 External Dependencies (Optional)
+
+### Voice Services
+For full voice functionality, download these external dependencies:
+
+**Whisper STT:**
+```bash
+# Download from official Whisper.cpp repository
+# Place ggml-base.en.bin model in ./models/ directory
+```
+
+**Piper TTS:**
+```bash
+# Download from official Piper repository  
+# Place voice models in ./models/ directory
+```
+
+**OpenWakeWord:**
+```bash
+pip install openwakeword
+```
+
+### Search APIs
+For web search functionality, set these environment variables in `.env`:
+
+```bash
+# Bing Search (recommended)
+SEARCH_BING_API_KEY=your_bing_api_key
+
+# Google Custom Search
+SEARCH_GOOGLE_API_KEY=your_google_api_key
+SEARCH_GOOGLE_CX=your_google_cx
+
+# Tavily Search
+SEARCH_TAVILY_API_KEY=your_tavily_api_key
+```
+
+### Local Models
+For local AI inference without external APIs, download GGUF models to `./models/`:
+- Llama-3.2-1B/3B/8B models
+- CodeLlama models for coding tasks
+
+*All voice and search features work without these dependencies but will use fallback modes.*
+
+---
+
 ## 🛠️ Daily Workflows
 
 *   **Search**: Grab results from the web without the tracking.

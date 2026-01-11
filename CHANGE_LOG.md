@@ -638,3 +638,36 @@ capability state, or project rules. It is factual and append-only.
 - Prior entry [2026-01-10 00:50 UTC] claimed Voice Infrastructure promoted to State 1 based on container binary verification/model loading.
 - Actual state: SYSTEM_INVENTORY.md remains State 3 (Requires External Dependency); local validation reports PASS_WITH_SKIPS and voice integration tests SKIP when external voice dependencies are not available.
 - Evidence: SYSTEM_INVENTORY.md classification + validator summary (Voice-related integration tests skipped).
+
+---
+
+### 2026-01-10 12:45 UTC — Backend validation confirmation: All State 1 capabilities verified
+
+- Executed `scripts/validate_backend.py` confirming all State 1 capabilities are working: Unit Tests PASS (35 tests), Integration Tests PASS_WITH_SKIPS (99 tests, 5 skipped), Agentic Tests PASS (5 tests).
+- Verified SYSTEM_INVENTORY.md accuracy - all "Implemented and Locally Exercised" capabilities are indeed functional.
+- Evidence: Validation output shows ✅ JARVISv3 Backend is VALIDATED WITH EXPECTED SKIPS with no failures in State 1 capabilities.
+
+---
+
+### 2026-01-10 12:56 UTC — Documentation truth alignment: Project.md vision context added
+
+- Added vision context note to Project.md introduction and "Vision vs. Reality" section to clarify relationship between vision and current implementation status.
+- Updated Project.md to reference SYSTEM_INVENTORY.md for current capability states while preserving aspirational vision.
+- Evidence: Project.md updated with vision context and reality section, maintaining separation between vision and status tracking.
+
+---
+
+### 2026-01-10 13:05 UTC — External dependencies documentation: README.md enhanced
+
+- Added "External Dependencies (Optional)" section to README.md after Quick Start with subsections for Voice Services, Search APIs, and Local Models.
+- Provided concise instructions for external dependencies (Whisper, Piper, OpenWakeWord, search APIs, GGUF models) with clear fallback behavior notes.
+- Evidence: README.md updated with dependency documentation, maintaining existing structure while adding optional feature guidance.
+
+---
+
+### 2025-01-10 14:15 UTC — Documentation cross-reference audit: Project.md corrections
+
+- Audited Project.md against SYSTEM_INVENTORY.md, corrected 2 mismatches (research capabilities removed from "in progress", desktop integration wording clarified).
+- Project.md Vision vs. Reality section updated to reflect accurate capability states.
+
+- Evidence: Static verification of Project.md content alignment with SYSTEM_INVENTORY.md states.

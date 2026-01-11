@@ -144,7 +144,28 @@ Apply only what was approved.
 Validate and report
 Run only the agreed commands, capture outcomes, and stop. If the failure mode does not change, stop and report (do not iterate silently).
 
-## 7 Validation and Execution (Authoritative)
+## 7 Environment Management and Python Execution
+
+### Environment Setup
+- All Python commands must use the project virtual environment: `./backend/.venv/Scripts/python`
+- Initialize venv if missing: `python -m venv backend/.venv`
+- Install dependencies: `./backend/.venv/Scripts/python -m pip install -r backend/requirements.txt`
+- Platform note: Works on Windows (PowerShell 7), macOS, and Linux
+
+### Command Execution Pattern
+- Always use full venv path: `./backend/.venv/Scripts/python [command]`
+- Examples:
+  - Run backend: `./backend/.venv/Scripts/python backend/main.py`
+  - Run tests: `./backend/.venv/Scripts/python -m pytest tests/`
+  - Run validation: `./backend/.venv/Scripts/python scripts/validate_backend.py`
+
+### Why Virtual Environment
+- Isolates project dependencies from system Python
+- Ensures consistent behavior across development environments
+- Prevents conflicts with global packages
+- Required for proper dependency resolution
+
+## 8 Validation and Execution (Authoritative)
 
 Standards:
 
@@ -182,7 +203,7 @@ Notes:
 * Do not assume `make` is installed on Windows. If a Makefile exists, treat it as optional convenience.
 * When verifying servers, start, confirm readiness via logs or a simple request, then stop unless instructed to keep it running.
 
-## 8 Data and Artifact Conventions
+## 9 Data and Artifact Conventions
 
 Runtime artifacts must not live in the repo root.
 
@@ -198,7 +219,7 @@ Rules:
 * Do not introduce new storage locations without explicit agreement.
 * Ensure ignores cover generated artifacts (git + docker contexts) without being overly broad.
 
-## 9 Docker Conventions (Dev vs Hardened)
+## 10 Docker Conventions (Dev vs Hardened)
 
 This repo uses two compose tracks:
 
@@ -220,13 +241,13 @@ Preferences:
 * SQLite-first for default persistence unless the repo explicitly documents otherwise.
 * Redis (if present) must degrade gracefully when unavailable and must not block startup.
 
-## 10 Documentation Discipline
+## 11 Documentation Discipline
 
 Documentation must not exceed SYSTEM_INVENTORY.md claims.
 Do not update docs “because it should be true” only because "there is evidance supporting it".
 Update docs only when behavior is evidenced and the document is an authoritative consumer of that claim.
 
-## 11 Output Format
+## 12 Output Format
 
 When reporting back:
 
