@@ -1,0 +1,120 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: jarvisv3-backend
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    labels:
+      com.jarvis.project: "JARVISv3"
+      com.jarvis.service: "backend"
+      com.jarvis.variant: "prod"
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:////app/data/JARVISv3.db}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change_me_in_production}
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8000
+      - LOG_LEVEL=info
+      - PRIVACY_LEVEL=${PRIVACY_LEVEL:-medium}
+      - MONTHLY_BUDGET_USD=${MONTHLY_BUDGET_USD:-100.0}
+      - TOKEN_BUDGET_PER_WORKFLOW=${TOKEN_BUDGET_PER_WORKFLOW:-1000}
+      - HF_HOME=/app/data/.cache/huggingface
+      - TRANSFORMERS_CACHE=/app/data/.cache/huggingface/transformers
+      - SENTENCE_TRANSFORMERS_HOME=/app/data/.cache/sentence-transformers
+      - MODEL_PATH=/models
+      - LD_LIBRARY_PATH=/usr/local/lib:/opt/whisper/bin:/opt/whisper/lib:/opt/whisper/src:/opt/llama/lib:/opt/llama/bin:/opt/piper_build/pi/lib:/usr/local/bin
+    volumes:
+      - jarvis_data:/app/data
+      - jarvis_logs:/app/logs
+      - jarvis_media:/app/media
+      - ./models:/models
+      - jarvis_checkpoints:/app/checkpoints
+    depends_on:
+      - redis
+    networks:
+      - JARVISv3_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - JARVISv3_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+      - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:8000}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - JARVISv3_network
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    volumes:
+      - ./frontend/nginx.conf:/etc/nginx/nginx.conf
+      - frontend_build:/usr/share/nginx/html
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - JARVISv3_network
+    restart: unless-stopped
+
+volumes:
+  jarvis_media:
+  jarvis_data:
+  jarvis_logs:
+  jarvis_models:
+  jarvis_checkpoints:
+  redis_data:
+  frontend_build:
+
+networks:
+  JARVISv3_network:
+    driver: bridge

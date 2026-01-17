@@ -1,0 +1,38 @@
+{
+  "package": {
+    "productName": "JARVISv3",
+    "version": "0.1.0"
+  },
+  "build": {
+    "distDir": "../dist",
+    "devPath": "http://localhost:3000",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true
+      }
+    },
+    "bundle": {
+      "active": false,
+      "targets": [],
+      "identifier": "com.jarvisv3.app"
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "title": "JARVISv3",
+        "width": 1200,
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ]
+  }
+}
