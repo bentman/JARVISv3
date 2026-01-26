@@ -2,7 +2,11 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platforms](https://img.shields.io/badge/platform-Windows_|_macOS_|_Linux-lightgrey)](#)
-[![Status](https://img.shields.io/badge/status-Active_Development-yellow)](#)
+[![Status: Semi Active](https://img.shields.io/badge/status-Semi%20Active_Development-yellow)](#)
+![Successor](https://img.shields.io/badge/Successor-JARVISv4-blue)
+
+> This project has evolved and is now succeeded by [**JARVISv4**](https://github.com/bentman/JARVISv4)
+
 
 JARVISv3 is a local-first AI assistant designed for daily workflows on your machines. It's built on a **Workflow Graph** architecture, which means instead of just chatting, it coordinates specialized agents to handle things like search, deep research, code creation, code review, and memory retrieval — all while running on your own hardware.
 
