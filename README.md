@@ -1,9 +1,8 @@
 # JARVISv3: Personal AI Assistant
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Platforms](https://img.shields.io/badge/platform-Windows_|_macOS_|_Linux-lightgrey)](#)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Status: Semi Active](https://img.shields.io/badge/status-Semi%20Active_Development-yellow)](#)
-![Successor](https://img.shields.io/badge/Successor-JARVISv4-blue)
+![Successor: JARVISv4](https://img.shields.io/badge/Successor-JARVISv4-blue)
 
 > This project has evolved and is now succeeded by [**JARVISv4**](https://github.com/bentman/JARVISv4)
 
