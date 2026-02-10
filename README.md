@@ -16,9 +16,9 @@
 
 | Feature | Status | Notes |
 | :--- | :--- | :--- |
+| **Memory** | ✅ Exercised | Semantic search across past conversations (FAISS) - locally functional. |
 | **Basic Chat** | ⚠️ Implemented | Requires external LLM provider (Ollama/llama.cpp). |
 | **Voice Interaction**| ⚠️ Implemented | Wake word and STT/TTS implemented but require external voice models. |
-| **Memory** | ✅ Exercised | Semantic search across past conversations (FAISS) - locally functional. |
 | **Web Research** | ⚠️ Implemented | Aggregated search with privacy redaction. Requires external search APIs. |
 | **Multi-Machine** | ⚠️ Implemented | Runs on Win/Mac/Linux with distributed node support. |
 | **Daily Utility** | ⚠️ Implemented | System integration available but requires configuration. |
