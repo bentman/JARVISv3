@@ -8,7 +8,7 @@
 > This project has evolved and is now succeeded by [**JARVISv4**](https://github.com/bentman/JARVISv4)
 
 - A stable foundation with more bells than whistle. 
-- Almost enough to use daily, though still carrying architectural limitations.
+- Almost enough to use daily, though still carrying architectural baggage.
 
 **Development Status**: All backend roadmap phases completed. See CHANGE_ROADMAP.md for the complete development history and CHANGE_LOG.md for implementation details.
 
