@@ -2,7 +2,7 @@
 ## Just A Reliable Variant In Service
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status: Reference](https://img.shields.io/badge/status-Reference-Orange)](#)
+[![Status: Reference](https://img.shields.io/badge/status-Reference-orange)](#)
 [![Successor: JARVISv4](https://img.shields.io/badge/Successor-JARVISv4-blue)](https://github.com/bentman/JARVISv4)
 
 > This project has evolved and is now succeeded by [**JARVISv4**](https://github.com/bentman/JARVISv4)
